@@ -25,7 +25,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="max-w-screen-md mx-auto dark:bg-black">
+      <body className="max-w-screen-md mx-auto">
           <main className="flex flex-col w-full h-full">
             <Header />
             {children}
