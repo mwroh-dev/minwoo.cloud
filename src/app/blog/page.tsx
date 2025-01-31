@@ -18,7 +18,7 @@ function PostCard({
 
   return (
     <Link key={post.slug} href={`/blog/${post.slug}`}>
-      <div key={date} className="rounded-xl shadow-lg bg-white">
+      <div key={date} className="rounded-xl shadow-lg bg-white h-full">
         <div className="relative">
           <Image
             src={thumbnail}
