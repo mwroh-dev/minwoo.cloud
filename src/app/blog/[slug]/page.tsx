@@ -28,6 +28,22 @@ import { evaluate } from '@mdx-js/mdx';
 function useMDXComponents(components: MDXComponents = {}): MDXComponents {
   return {
     ...components,
+    a: ({ href, children }) => (
+      <a
+        href={href}
+        className="
+          prose-a no-underline border-none
+          text-blue-500 hover:bg-blue-100 hover:text-blue-800
+        "
+      >
+        {children}
+      </a>
+    ),
+    li: ({ children }) => (
+      <li className="prose-li marker:text-blue-500">
+        {children}
+      </li>
+    ),
     blockquote: ({ children }) => (
       <blockquote className="prose-blockquote border-blue-500 bg-blue-50">
         {children}
