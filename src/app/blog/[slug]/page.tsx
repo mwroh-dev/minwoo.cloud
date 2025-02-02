@@ -24,9 +24,15 @@ import { evaluate } from '@mdx-js/mdx';
 	•	Reducing unnecessary package dependencies to minimize bundle size, improve security, and enhance performance.
 */
 
+
 function useMDXComponents(components: MDXComponents = {}): MDXComponents {
   return {
     ...components,
+    blockquote: ({ children }) => (
+      <blockquote className="prose-blockquote border-blue-500 bg-blue-50">
+        {children}
+      </blockquote>
+    ),
   };
 }
 
@@ -64,9 +70,11 @@ async function BlogPost({ params }: { params: { slug: string } }) {
   });
 
   return (
-    <article className="prose prose-slate lg:prose-xl mx-auto">
-      <h1 className="text-4xl font-bold">{data.title}</h1>
-      <p className="text-sm text-gray-500">{data.date}</p>
+    <article className="prose mx-auto">
+      <h1 className="text-2xl font-mono font-extrabold mb-5">
+        {data.title}
+      </h1>
+      <p className="text-sm text-right">{data.date}</p>
       {compiledMDX.default({})}
     </article>
   );
