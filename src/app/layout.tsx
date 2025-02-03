@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import Footer from '@/components/footer';
 import Header from '@/components/header';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -19,6 +20,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS;
+
+  if(!gaId)
+    throw new Error('NEXT_PUBLIC_GOOGLE_ANALYTICS is not set');
+
   return (
     <html
       lang="en"
@@ -32,6 +39,7 @@ export default function RootLayout({
             <Footer />
           </main>
       </body>
+      <GoogleAnalytics gaId={gaId} />
     </html>
   );
 }
