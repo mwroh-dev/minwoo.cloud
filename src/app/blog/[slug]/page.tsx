@@ -3,6 +3,7 @@ import React from 'react';
 import fs from 'fs';
 import matter from 'gray-matter';
 import { MDXComponents } from 'mdx/types';
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import path from 'path';
 import * as runtime from 'react/jsx-runtime';
@@ -49,6 +50,39 @@ function useMDXComponents(components: MDXComponents = {}): MDXComponents {
         {children}
       </blockquote>
     ),
+  };
+}
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+
+  // TODO move to a util to avoid duplication.
+  const resolvedParams = await params;
+  if (!resolvedParams) {
+    notFound();
+  }
+
+  const slug = decodeURIComponent(resolvedParams.slug);
+  const filePath = path.join(POSTS_PATH, `${slug}.mdx`);
+
+  if (!fs.existsSync(filePath)) {
+    notFound();
+  }
+
+  const fileContents = fs.readFileSync(filePath, 'utf8');
+  const { data } = matter(fileContents);
+
+  if (!data.title || !data.description) {
+    throw new Error(`Missing required metadata in ${slug}.mdx.`);
+  }
+
+  // TODO add og in all metadata
+  return {
+    title: data.title,
+    description: data.description,
   };
 }
 
