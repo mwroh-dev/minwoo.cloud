@@ -60,15 +60,20 @@ export async function generateStaticParams() {
   }));
 }
 
-async function BlogPost({ params }: { params: { slug: string } }) {
+async function BlogPost({
+  params
+}: {
+  params: Promise<{ slug: string }>
+}) {
   "use server";
 
+  // TODO create NotFound Page
   const resolvedParams = await params;
-  if (!resolvedParams.slug) {
+  if (!resolvedParams) {
     notFound();
   }
 
-  const slug = decodeURIComponent(params.slug);
+  const slug = decodeURIComponent(resolvedParams.slug);
   const filePath = path.join(process.cwd(), "src", "posts", `${slug}.mdx`);
 
   if (!fs.existsSync(filePath)) {
