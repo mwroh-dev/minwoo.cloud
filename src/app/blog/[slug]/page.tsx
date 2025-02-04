@@ -10,7 +10,8 @@ import * as runtime from 'react/jsx-runtime';
 import rehypePrism from 'rehype-prism-plus';
 import remarkGfm from 'remark-gfm';
 
-import { BLOG_URL, getPostBySlug, POSTS_PATH } from '@/lib/posts';
+import { generateMetadata } from '@/lib/metadata';
+import { BLOG_URL, getPostBySlug, POSTS_PATH } from '@/lib/post';
 import { evaluate } from '@mdx-js/mdx';
 
 /**
@@ -53,7 +54,7 @@ function useMDXComponents(components: MDXComponents = {}): MDXComponents {
   };
 }
 
-export async function generateMetadata({
+export async function createMetadata({
   params
 }: {
   params: Promise<{ slug: string }>
@@ -70,24 +71,12 @@ export async function generateMetadata({
     notFound();
   }
 
-  return {
-    title: post.title,
+  return generateMetadata({
     description: post.description,
-    openGraph: {
-      title: post.title,
-      description: post.description,
-      url: `${BLOG_URL}/blog/${slug}`,
-      type: 'article',
-      images: [
-        {
-          url: post.thumbnail,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
-    },
-  };
+    thumbnail: post.thumbnail,
+    title: post.title,
+    url: `${BLOG_URL}/blog/${slug}`,
+  });
 }
 
 export async function generateStaticParams() {
@@ -119,7 +108,6 @@ async function BlogPost({
 
   const fileContents = fs.readFileSync(filePath, "utf8");
   const { content, data } = matter(fileContents);
-
 
   const compiledMDX = await evaluate(content, {
     ...runtime,

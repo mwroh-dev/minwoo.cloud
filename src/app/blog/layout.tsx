@@ -1,10 +1,13 @@
 import { Metadata } from 'next';
 import { Geist_Mono } from 'next/font/google';
 
-export const metadata: Metadata = {
+import { generateMetadata } from '@/lib/metadata';
+
+export const metadata: Metadata = generateMetadata({
   title: "Minwoo.Roh | Blog",
   description: "Sharing challenges and lessons from web development, along with small insights from solving complex problems.",
-};
+});
+
 
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
