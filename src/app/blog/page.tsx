@@ -2,8 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import TagChip from '@/components/tag-chip';
-import { getAllPosts } from '@/lib/posts';
-import { IPost } from '@/types/mdx';
+import { getAllPosts } from '@/lib/post';
+import { IPost } from '@/types/post';
 
 function PostCard({
   loading,

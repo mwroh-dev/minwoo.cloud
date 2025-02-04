@@ -3,7 +3,7 @@ import matter from 'gray-matter';
 import path from 'path';
 import { z } from 'zod';
 
-import { IPost } from '@/types/mdx';
+import { IPost } from '@/types/post';
 
 export const POSTS_PATH = path.join(process.cwd(), "src", "posts");
 export const BLOG_URL = 'https://minwoo.cloud';
