@@ -66,7 +66,7 @@ export async function generateMetadata({
   }
 
   const slug = decodeURIComponent(resolvedParams.slug);
-  const post = getPostBySlug(slug);
+  const post = getPostBySlug(`${slug}.mdx`);
   if(!post) {
     notFound();
   }
@@ -74,7 +74,7 @@ export async function generateMetadata({
   return generate({
     description: post.description,
     thumbnail: post.thumbnail,
-    title: post.title,
+    title: post.title + ' | Minwoo.Roh',
     url: `${BLOG_URL}/blog/${slug}`,
   });
 }
