@@ -5,7 +5,8 @@ import { z } from 'zod';
 
 import { IPost } from '@/types/mdx';
 
-export const POSTS_PATH = path.join(process.cwd(), "src", "posts")
+export const POSTS_PATH = path.join(process.cwd(), "src", "posts");
+export const BLOG_URL = 'https://minwoo.cloud';
 
 export function getPostSlugs() {
   return fs.readdirSync(POSTS_PATH).filter(file => file.endsWith(".mdx"));
@@ -20,25 +21,32 @@ const PostSchema = z.object({
   title: z.string(),
 });
 
-export function getPostBySlug(slug: string): IPost {
+export function getPostBySlug(slug: string): IPost | null {
   const fullPath = path.join(POSTS_PATH, slug);
+
+  if (!fs.existsSync(fullPath)){
+    console.error(`File not found: ${fullPath}`);
+    return null;
+  }
 
   const fileContents = fs.readFileSync(fullPath, "utf8");
   const { data } = matter(fileContents);
 
-  try {
-    return PostSchema.parse({
-      date: data.date,
-      description: data.description,
-      slug: slug.replace(/\.mdx$/, ""),
-      tags: data.tags,
-      thumbnail: data.thumbnail,
-      title: data.title,
-    });
-  } catch (error) {
-    console.error(`Invalid metadata in ${slug}.mdx`, error);
-    throw new Error("Metadata validation failed");
+  const parsed = PostSchema.safeParse({
+    date: data.date,
+    description: data.description,
+    slug: slug.replace(/\.mdx$/, ""),
+    tags: data.tags,
+    thumbnail: data.thumbnail,
+    title: data.title,
+  });
+
+  if (!parsed.success) {
+    console.error(`Invalid metadata in ${slug}`, parsed.error);
+    return null;
   }
+
+  return parsed.data;
 }
 
 export function getAllPosts() {
@@ -46,6 +54,7 @@ export function getAllPosts() {
 
   return slugs
     .map(s => getPostBySlug(s))
+    .filter((post): post is IPost => post !== null)
     .sort(
       (a, b) =>
         new Date(b.date).getTime() -

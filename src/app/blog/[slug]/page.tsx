@@ -10,7 +10,7 @@ import * as runtime from 'react/jsx-runtime';
 import rehypePrism from 'rehype-prism-plus';
 import remarkGfm from 'remark-gfm';
 
-import { POSTS_PATH } from '@/lib/posts';
+import { BLOG_URL, getPostBySlug, POSTS_PATH } from '@/lib/posts';
 import { evaluate } from '@mdx-js/mdx';
 
 /**
@@ -59,38 +59,42 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
 
-  // TODO move to a util to avoid duplication.
   const resolvedParams = await params;
   if (!resolvedParams) {
     notFound();
   }
 
   const slug = decodeURIComponent(resolvedParams.slug);
-  const filePath = path.join(POSTS_PATH, `${slug}.mdx`);
-
-  if (!fs.existsSync(filePath)) {
+  const post = getPostBySlug(slug);
+  if(!post) {
     notFound();
   }
 
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  const { data } = matter(fileContents);
-
-  if (!data.title || !data.description) {
-    throw new Error(`Missing required metadata in ${slug}.mdx.`);
-  }
-
-  // TODO add og in all metadata
   return {
-    title: data.title,
-    description: data.description,
+    title: post.title,
+    description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      url: `${BLOG_URL}/blog/${slug}`,
+      type: 'article',
+      images: [
+        {
+          url: post.thumbnail,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
   };
 }
 
 export async function generateStaticParams() {
   const filenames = fs.readdirSync(POSTS_PATH).filter((file) => file.endsWith(".mdx"));
 
-  return filenames.map((filename) => ({
-    slug: filename.replace(/\.mdx$/, ""),
+  return filenames.map(name => ({
+    slug: name.replace(/\.mdx$/, "")
   }));
 }
 
@@ -101,7 +105,6 @@ async function BlogPost({
 }) {
   "use server";
 
-  // TODO create NotFound Page
   const resolvedParams = await params;
   if (!resolvedParams) {
     notFound();
@@ -117,6 +120,7 @@ async function BlogPost({
   const fileContents = fs.readFileSync(filePath, "utf8");
   const { content, data } = matter(fileContents);
 
+
   const compiledMDX = await evaluate(content, {
     ...runtime,
     useMDXComponents: () => useMDXComponents(),
@@ -129,7 +133,9 @@ async function BlogPost({
       <h1 className="text-2xl font-mono font-extrabold mb-5">
         {data.title}
       </h1>
-      <p className="text-sm text-right">{data.date}</p>
+      <p className="text-sm text-right">
+        {data.date}
+      </p>
       {compiledMDX.default({})}
     </article>
   );
