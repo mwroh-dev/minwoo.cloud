@@ -15,10 +15,10 @@ return (
         <Ghost className="w-20 h-20 text-gray-500 animate-bounce" />
         <h1 className="text-6xl font-bold mt-4">404</h1>
         <p className="text-xl mt-2">
-					Oops! The page you're looking for vanished into thin air.
+					Oops! The page you are looking for vanished into thin air.
 				</p>
         <Link
-          href="/"
+					href="/"
           className="
 						flex items-center rounded-xl shadow-lg
 						mt-6 px-6 py-3
