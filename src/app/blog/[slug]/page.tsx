@@ -10,7 +10,7 @@ import * as runtime from 'react/jsx-runtime';
 import rehypePrism from 'rehype-prism-plus';
 import remarkGfm from 'remark-gfm';
 
-import { generateMetadata } from '@/lib/metadata';
+import { generateMetadata as generate } from '@/lib/metadata';
 import { BLOG_URL, getPostBySlug, POSTS_PATH } from '@/lib/post';
 import { evaluate } from '@mdx-js/mdx';
 
@@ -54,7 +54,7 @@ function useMDXComponents(components: MDXComponents = {}): MDXComponents {
   };
 }
 
-export async function createMetadata({
+export async function generateMetadata({
   params
 }: {
   params: Promise<{ slug: string }>
@@ -71,7 +71,7 @@ export async function createMetadata({
     notFound();
   }
 
-  return generateMetadata({
+  return generate({
     description: post.description,
     thumbnail: post.thumbnail,
     title: post.title,
