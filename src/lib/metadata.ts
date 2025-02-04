@@ -19,7 +19,11 @@ export const generateMetadata = (input?: TInput): Metadata => {
   const title = input?.title || baseTitle;
   const url = input?.url || BLOG_URL;
 
+  const isProd = process.env.NODE_ENV === 'production';
+  const metadataBase = new URL(isProd ? BLOG_URL : 'http://localhost:3000');
+
   return {
+    metadataBase,
     title,
     description,
     openGraph: {
