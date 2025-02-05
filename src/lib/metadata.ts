@@ -4,7 +4,7 @@ import { BLOG_URL } from '@/lib/post';
 
 const baseTitle = "Minwoo.Roh | Web Developer";
 const baseDescription = "Seasoned in React.js & Experienced Nest.js | Problem-Solver Exploring Complex Domains";
-const baseThumbnail = "/og-default.png";
+const baseThumbnail = "/og.png";
 
 type TInput = {
   description?: string;
