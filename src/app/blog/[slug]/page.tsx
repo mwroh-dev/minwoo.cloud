@@ -117,7 +117,7 @@ async function BlogPost({
   });
 
   return (
-    <article className="prose mx-auto">
+    <article className="prose w-full max-w-none px-4 md:px-0">
       <h1 className="text-2xl font-mono font-extrabold mb-5">
         {data.title}
       </h1>

@@ -1,7 +1,12 @@
 export default function Home() {
   return (
-    <section className="w-full min-h-[calc(100vh-72px)] flex flex-col items-end justify-center">
-      <div className="w-full h-[345px]">
+    <section
+      className="
+        w-full min-h-[calc(100vh-72px)]
+        p-4 sm:p-6 md:p-8
+        flex flex-col items-end justify-center
+      ">
+      <div className="w-full h-[345px] sm:h-[280px] md:h-[345px]">
         <video
           autoPlay
           muted

@@ -51,7 +51,7 @@ export default function BlogPage() {
   const allPosts = getAllPosts();
 
   return (
-    <section className="flex flex-col gap-8">
+    <section className="flex flex-col gap-8 px-4 md:px-0">
       <div className="w-full pb-2 border-b-2 border-black">
         <h1 className="text-left text-xl font-bold text-gray-800">Posts</h1>
         <h3 className="text-left text-l font-bold text-gray-800">
