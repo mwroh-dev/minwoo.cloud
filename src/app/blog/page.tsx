@@ -23,9 +23,8 @@ function PostCard({
 					<Image
 						src={thumbnail}
 						alt={`${title}-thumbnail image`}
-						layout="responsive"
-						width={16}
-						height={10}
+						width={640}
+						height={400}
 						className="object-cover"
 						priority={priority}
 						loading={loading}
