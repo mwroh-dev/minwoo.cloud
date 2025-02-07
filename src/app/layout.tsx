@@ -8,44 +8,42 @@ import Header from '@/components/header';
 import { generateMetadata } from '@/lib/metadata';
 import { GoogleAnalytics as NextGA } from '@next/third-parties/google';
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = generateMetadata();
 
 function GoogleAnalytics() {
-  const isProd = process.env.NODE_ENV === 'production';
-  if (!isProd) return null;
+	const isProd = process.env.NODE_ENV === 'production';
+	if (!isProd) return null;
 
-  const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS;
-  if (!gaId) {
-    throw new Error('NEXT_PUBLIC_GOOGLE_ANALYTICS is not set');
-  }
+	const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS;
+	if (!gaId) {
+		throw new Error('NEXT_PUBLIC_GOOGLE_ANALYTICS is not set');
+	}
 
-  return <NextGA gaId={gaId} />;
-};
-
+	return <NextGA gaId={gaId} />;
+}
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-
-  return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
-      suppressHydrationWarning
-    >
-      <body className="max-w-screen-md mx-auto">
-          <main className="flex flex-col w-full h-full">
-            <Header />
-            {children}
-            <Footer />
-          </main>
-      </body>
-      <GoogleAnalytics />
-    </html>
-  );
+	return (
+		<html
+			lang="en"
+			className={`${geistSans.variable} ${geistMono.variable}`}
+			suppressHydrationWarning
+		>
+			<body className="max-w-screen-md mx-auto">
+				<main className="flex flex-col w-full h-full">
+					<Header />
+					{children}
+					<Footer />
+				</main>
+			</body>
+			<GoogleAnalytics />
+		</html>
+	);
 }
