@@ -1,0 +1,160 @@
+---
+title: 'Migrating from RESTful API to GraphQL in a Complex Domain'
+date: '2025-02-11'
+tags: ['GraphQL']
+description: 'A firsthand experience of transitioning from RESTful API to GraphQL in a complex domain. This article explores the challenges faced, the decisions made, and the lessons learned while optimizing data flow and improving development efficiency.'
+thumbnail: /thumbnails/migrate-to-gql.png
+---
+
+> I used AI to translate this post into English to share my thoughts more clearly with a wider audience.
+
+
+## Introduction
+This article does not aim to explain the theoretical differences between RESTful APIs and GraphQL. Instead, it documents the journey of adopting GraphQL, the challenges faced, and the lessons learned throughout the transition.
+
+---
+
+## Background
+### 1. Why We Considered GraphQL
+In 2021, i was developing an EMR (Electronic Medical Record) service. initial version (V1) was built on a RESTful API structure, but team encountered several challenges in maintaining and scaling it. After careful consideration, team decided to start from scratch with a more flexible architecture.
+
+Our CTO evaluated various options and chose the following tech stack:
+
+
+- 🖥️ **Frontend:** React.js + Apollo Client
+- 🗄️ **Backend:** NestJS (Code-First) + GraphQL
+
+### 2. Challenges with RESTful API
+While working with our RESTful API-based V1 project, we encountered several key issues, particularly due to the nature of EMR systems, which require frequent updates and flexibility in data management.
+
+1. **Scalability and Maintainability Issues**
+  - Data retrieval depended heavily on predefined endpoints, limiting query flexibility.
+  - Combining multiple models often required multiple API calls, leading to inefficiencies.
+  - Understanding data relationships required extensive documentation and tribal knowledge.
+
+2. **Productivity Bottlenecks**
+  - Managing multiple API endpoints and maintaining consistency across them was challenging.
+  - Type validation across the API and frontend was inconsistent.
+  - Communication between backend and frontend teams was often time-consuming.
+
+3. **Domain Complexity and Communication Overhead**
+  - The EMR domain had intricate relationships between entities, making it difficult to define clear API contracts.
+  - Without strong domain knowledge, frontend developers found it challenging to navigate the API structure efficiently.
+  - Misalignment in terminology between teams led to redundant discussions and incorrect API implementations.
+
+4. **Ubiquitous Language Issues**
+  - The same entity was sometimes referred to differently across different parts of the application, causing confusion.
+  - Lack of a well-defined data schema made it difficult to enforce consistency in API responses.
+
+---
+
+## Problem Analysis
+### 1. Overfetching and Inefficient API Queries
+
+🖥️ **Frontend Developer** , 🗄️ **Backend Developer**
+
+🖥️ "I need to modify the UI, but the API does not provide the necessary model data. I have to make multiple requests and stitch the results together."
+
+🗄️ "We do not currently expose that data through our API. Adding a new endpoint requires coordination with multiple services, which might take time."
+
+🖥️ "That means I have to manually combine different API responses, which feels inefficient."
+
+
+```ts
+const useCombinedData = async () => {
+  // Fetch data from multiple REST endpoints
+  const aResponse = await fetch('/api/dataA');
+  const bResponse = await fetch('/api/dataB');
+
+  const aResult = await aResponse.json();
+  const bResult = await bResponse.json();
+
+  // Manually combining responses
+  return aResult.map(a => ({
+    ...a,
+    relatedData: bResult.find(b => b.id === a.relatedId)
+  }));
+};
+```
+
+### 2. What If? Communication Based on Schema
+
+**Key Entity Names:** "Diagnosis", "Assessment", "Assessment Media", "Chart", "Patient"
+
+🖥️ "I am working on the diagnosis feature(epic) and need to retrieve assessment and media data. How are these entities structured?"
+
+🗄️ "Assessments are nested under Diagnosis, and Media is part of the Assessment. You need to query both."
+
+🖥️ "Got it. But to fetch a Diagnosis, do I need to go through the Chart and Patient models?"
+
+🗄️ "Yes. A Diagnosis is linked to a Chart, which belongs to a Patient."
+
+🖥️ "That is an issue because our admin dashboard requires fetching media files independently, without going through these relationships."
+
+🗄️ "Are you referring to media from Diagnosis.Assessment.Media or all media across the Chart?"
+
+🖥️ "The latter. We need a comprehensive media overview, not just related to Assessments."
+
+🗄️ "That is a valid use case. Our current model does not account for that, so we may need to refine our schema."
+
+
+```GraphQL
+type Chart {
+  id: ID!
+  patient: Patient!
+  diagnoses: [Diagnosis!]!
+  mediaFiles: [Media!]! # Allow fetching all media under a chart
+}
+
+type Diagnosis {
+  id: ID!
+  chart: Chart!
+  assessments: [Assessment!]!
+}
+
+type Assessment {
+  id: ID!
+  diagnosis: Diagnosis!
+  media: [Media!]!
+}
+```
+
+---
+
+## Implementing GraphQL
+
+Before designing the entity structure, during the project setup phase, the CTO assigned me a mission: **"Find the best practices for using GraphQL with React."** I was given this responsibility because of my frontend development experience, and my primary goal was to explore how GraphQL could be effectively utilized on the client side.
+
+### 1. Model Investigation and Schema Design
+We analyzed the connections between GraphQL resolvers and our UI, mapping out data flow through visual diagrams. This approach helped us identify where custom resolvers were necessary, ensuring backend developers could preemptively plan their implementations. Since GraphQL models do not always align 1:1 with database entities, this step was crucial in reducing misalignment and preventing bottlenecks later in development.
+
+### 2. Automating GraphQL Hook Generation
+To simplify API calls, we developed a custom generator that aligned with our TypeScript-based frontend architecture. Instead of manually creating hooks for each query, our generator produced them automatically, taking into account file structure, TypeScript types, and API configurations. This streamlined development and reduced maintenance overhead.
+
+```
+NestJS Resolver (Code-First)
+ ├─> GraphQL Schema File
+ │    ├─> Git Pull (Version Control)
+ │    │    ├─> Generate New Hook
+ │    │    │    ├─> Integrate into React
+```
+
+### 3. Establishing Patterns (CQS, Separation of Concerns)
+At the time, our team was transitioning from a Redux-based architecture to React Hooks. One key challenge was determining the best placement for queries and mutations. While setting up GraphQL, I came across an insightful [article](https://www.apollographql.com/blog/client-side-architecture-basics) that helped shape our approach.
+
+Among the various ideas, two core principles stood out:
+
+- **Clear separation of queries and mutations**: We defined strict boundaries for read and write operations to ensure cleaner component structures.
+- **Optimized query fetching**: We adjusted data-fetching strategies based on retrieval frequency to balance performance and responsiveness.
+
+This structured approach significantly improved maintainability and aligned with best practices in GraphQL-based development.
+
+---
+
+## Conclusion
+Today, concepts like React Hooks, caching, and efficient data fetching have become industry standards. GraphQL schema-driven API approach has influenced how modern RESTful APIs are structured as well. However, at the time, adopting GraphQL was a transformative shift from traditional API design.
+
+The key takeaway from this experience was that technology choices should always be driven by the specific challenges they aim to solve. While GraphQL provided tangible benefits in flexibility and efficiency, the real success lay in how it streamlined development and fostered better collaboration between frontend and backend teams.
+
+As technology evolves, staying adaptable and continuously refining best practices remains a core responsibility of developers.
+
