@@ -1,0 +1,122 @@
+---
+title: 'GraphQL Query Optimization: Lessons Learned from Trying Multiple Approaches'
+date: '2025-02-23'
+tags: ['GraphQL']
+description: 'GraphQL Query Optimization Experience: Sharing valuable lessons learned from the challenges encountered and solutions implemented during frontend-backend collaboration.'
+thumbnail: /thumbnails/optimization-gql.png
+---
+
+> I used AI to translate this post into English to share my thoughts more clearly with a wider audience.
+
+## Introduction
+
+Following the [transition to GraphQL](/blog/migrate-to-gql), the system gradually stabilized. As a result, issue reports started appearing through internal development channels and product team issue trackers.
+These issues covered various aspects of maintenance and usability improvements, including schema version management, property and argument type changes, and lazy query handling.
+Among these, I focused on optimizing GraphQL query performance, exploring different approaches to tackle the challenge.
+
+When searching for GraphQL optimization techniques, common topics like DataLoader, batching, the N+1 problem, and caching frequently emerge. However, beyond these fundamental considerations, I also wanted to explore practical ways in which engineers can actively reduce inefficiencies and improve performance through careful design and implementation.
+
+---
+
+## FrontEnd: Query Operation Name & Fragment Standardization
+
+When initiating the optimization process, I prioritized analyzing frontend code over backend code. Since the frontend consumes the data, reviewing its usage patterns first provided a more effective starting point.
+
+Two major anti-patterns emerged:
+1. Reusing the same query name across different components, causing conflicts.
+2. Creating excessively large fragments and overusing them.
+
+At the early stages of GraphQL adoption, frontend developers often implemented queries inefficiently, leading to these issues.
+
+```GraphQL
+fragment PatientDetails on Patient {
+  id
+  name
+  ...
+}
+
+fragment ChartDetails on Chart {
+  id
+  created
+  updated
+  ...
+}
+
+fragment DiagnosisDetails on Diagnosis {
+  id
+  created
+  updated
+  ...
+}
+
+# patient.chart.diagnosis.assessment...
+query GetAppointments {
+  appointments {
+    id
+    started
+    cancelled
+
+    patient {
+      ...PatientDetails
+      charts {
+        ...ChartDetails
+        diagnoses {
+          ...DiagnosisDetails
+        }
+      }
+    }
+  }
+}
+```
+
+## FrontEnd: Unnecessary Property Requests (Over-Fetching)
+
+Similar to the fragment issue, many queries contained unnecessary properties that were never used in the respective components. This led to excessive data retrieval, further exacerbating over-fetching.
+
+To address this, we later established GraphQL query guidelines within the frontend team, standardizing query structures and reducing unnecessary data requests.
+
+**Key checks:**
+
+- Identifying duplicate query names.
+- Ensuring fragments are used meaningfully.
+- Verifying that requested properties are actually used in components.
+
+
+## BackEnd: Implementing Subscription
+
+When dealing with frequently changing, real-time data, we evaluated various approaches to determine the best solution. At this time, we were also incorporating Domain-Driven Design (DDD) and transitioning towards an event-driven architecture.
+
+With our team aligned through ubiquitous language and event storming, integrating subscriptions became a natural step forward. This enabled us to classify data retrieval strategies:
+- Static data → Cache-first policy.
+- Dynamic, real-time data → Subscription-based updates.
+
+This structured approach improved performance while maintaining data consistency.
+
+```GraphQL
+subscription OnUpdatePrimaryAssessment {
+  newAssessment {
+    id
+    patientId
+  }
+}
+```
+
+
+## Product Team: Optimization Reducing Query Depth
+
+Optimizing query depth required more than just code changes—it necessitated a multi-faceted approach. This was not solely a development issue; designers, product managers, and all relevant stakeholders needed to collaborate on sustainable solutions.
+
+We conducted discussions to find long-term improvements:
+- **Development team:** Optimized query depth while ensuring necessary data availability.
+- **Design team:** Explored UI adjustments to minimize excessive data requests.
+- **Product team:** Reevaluated feature requirements to ensure only essential data was retrieved.
+
+This process led us to adopt custom resolvers, ultimately refining the structure of frontend, backend, UI, and product workflows for efficiency.
+
+---
+
+## Conclusion
+
+Optimizing GraphQL queries was not just about improving query structure—it also required clear role definitions between frontend and backend teams. Additionally, GraphQL adoption extended beyond developers; product managers and designers needed to align with its principles to maximize its effectiveness.
+
+Fortunately, our adoption of DDD and event storming enabled seamless collaboration across teams. This process not only enhanced query performance but also established an efficient and scalable GraphQL environment for the entire team.
