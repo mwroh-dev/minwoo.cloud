@@ -19,12 +19,11 @@ function PostCard({
 	return (
 		<Link key={post.slug} href={`/blog/${post.slug}`}>
 			<div key={date} className="rounded-xl shadow-lg bg-white h-full">
-				<div className="relative">
+				<div className="relative w-full aspect-[16/10]">
 					<Image
 						src={thumbnail}
 						alt={`${title}-thumbnail image`}
-						width={640}
-						height={400}
+						fill
 						className="object-cover"
 						priority={priority}
 						loading={loading}
