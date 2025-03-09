@@ -1,0 +1,93 @@
+---
+title: 'Tango & Queens: The Puzzle Within Code'
+date: '2025-03-09'
+tags: ['Experience']
+description: 'At its core, development is about solving puzzles. Tango & Queens taught me valuable problem-solving techniques, and in this post, I share how they align with my journey as a developer.'
+thumbnail: /thumbnails/puzzle-game.png
+---
+
+> I used AI to translate this post into English to share my thoughts more clearly with a wider audience.
+
+## The Two Games I'm Hooked On: Tango & Queens
+
+Recently, I've been hooked on two games: [Tango](https://www.linkedin.com/games/tango) and [Queens](https://www.linkedin.com/games/queens) on LinkedIn. A developer friend recommended them to me when I was getting started on LinkedIn, and I found them incredibly fun.
+I've always enjoyed puzzle games like Sudoku since I was a kid. As an adult, escape rooms have become a popular pastime in Korea, and I often play board games at home parties with friends.
+
+Interestingly, many of my developer friends are gaming enthusiasts. Some are Tetris fanatics, while others love TRPGs (Tabletop RPGs). I've never directly asked them why they love these games, but I feel like I already know the answer.
+
+I don't always have a clear answer when I ask myself why I became a developer. But when I reflect on my daily habits and conversations with friends, I often find myself chuckling and thinking, "Ah, this is why I became a developer."
+
+## Tango & Queens: The Appeal of Puzzle Games
+
+Tango & Queens share similar mechanics with Sudoku.The key rule is that each row, column, and colour region must contain a specific number of pieces.
+
+**At the Beginning: Understanding the Rules but Hesitating to Act**
+
+When I first played Tango & Queens, I knew the rules and understood them, yet I found myself hesitating when the game actually began. For the first few rounds, I played casually, focusing purely on solving the puzzles rather than refining my strategy.
+
+Then, one day, I pressed the Hint button for the first time. I had avoided it before because I thought it would make the game too easy and less enjoyable. But that day, I gave it a go—and from that moment, everything changed.
+
+**As I Progressed: Turning Rules into an Algorithm**
+
+For a few rounds, I kept pressing hints, trying to understand how the game was designed. Interestingly, I realised that the hints were simply applying the existing rules in a structured, algorithmic way.
+This led me to develop my own elimination-based strategy, refining my thought process to optimise the way I played.
+
+![tango](/posts/puzzle-game/queens.png)
+
+**Queens Game Rules**
+
+Each row, column, and colour region must contain exactly one queen.
+No queen can be placed adjacent (horizontally, vertically, or diagonally) to another queen
+
+**My Strategy**
+
+```
+  - Default Pattern Recognition
+    - Have I found a queen?
+      - If so, mark an X on all adjacent squares (8 directions)
+      - Mark an X in all other spaces within the same colour region, row, and column
+  - Virtual Intersections
+    - If a nearby space is impossible for any other queen
+      - mark an X
+    - Is the space only valid in a row?
+      - That must be the queen’s spot.
+    - Is the space only valid in a column?
+      - That must be the queen’s spot.
+  - Aggregating Colour Regions (Nested Intersections)
+    - How many spaces remain for a specific colour region?
+      - Those spaces must contain the corresponding queens.
+
+```
+
+![tango](/posts/puzzle-game/tango.png)
+
+Tango felt easier than Queens. Since Tango provides built-in hints like Equal (=) and Opposite (X), it offers more guidance within the game itself.
+
+**Now: Optimising My Thought Process**
+
+Now that I'm familiar with the mechanics, my goal has shifted. Rather than simply solving the puzzles, I'm now focused on how quickly I can solve them—in other words, refining my thought process.
+
+* Where are the key intersection points? (Exploration)
+* Am I certain about the queen’s placement? (Validation)
+* Are there positions I can quickly rule out? (Elimination)
+
+## Job(Game) in My Life
+
+One of the hardest questions for newcomers to the industry is this:
+> "What are you best suited for? What do you want to do?"
+
+For me, answering this wasn't easy. So I decided to explore different domains—just as I experiment with different games—to discover what truly suits me.
+At first, learning new domains, new tech stacks, and complex requirements felt overwhelming. But over time, I realised that once you understand the rules, you can start optimising.
+
+And that's where the real fun begins. Finding better solutions is what makes development exciting.
+Ultimately, my love for puzzle games and my love for development come from the same place.The initial uncertainty, followed by solving problems and refining the process, is what brings me joy. And that, more than anything else, defines me as a developer.
+
+## What’s the Next Game?
+
+So now, I’m looking for a new game to play.
+I want to learn new rules, discover new optimisations, and tackle new challenges. Just like I keep solving puzzles, I want to keep solving problems as a developer.
+Maybe, what truly matters for a developer is the ability to enjoy new challenges.
+
+
+(Queens is absolutely brilliant. I wish I could go back and solve the previous puzzles too...! 😆)
+
