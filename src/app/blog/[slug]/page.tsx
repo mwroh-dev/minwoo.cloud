@@ -104,7 +104,7 @@ async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
 	});
 
 	return (
-		<article className="prose w-full max-w-none px-4 md:px-0">
+		<article className="blog prose w-full max-w-none px-4 md:px-0">
 			<h1 className="text-2xl font-mono font-extrabold mb-5">{data.title}</h1>
 			<p className="text-sm text-right">{data.date}</p>
 			{compiledMDX.default({})}
