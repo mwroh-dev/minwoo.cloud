@@ -20,7 +20,7 @@ function GoogleAnalytics() {
 
 	const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS;
 	if (!gaId) {
-		throw new Error('NEXT_PUBLIC_GOOGLE_ANALYTICS is not set');
+		return null;
 	}
 
 	return <NextGA gaId={gaId} />;
