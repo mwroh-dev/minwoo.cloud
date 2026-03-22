@@ -20,7 +20,9 @@ export default function BlogIndex({ locale, posts }: BlogIndexProps) {
 	const copy = BLOG_COPY[locale];
 	const featuredPost = posts.find((post) => post.featured) ?? posts[0];
 	const groupedPosts = getGroupedPosts(
-		featuredPost ? posts.filter((post) => post.slug !== featuredPost.slug) : posts
+		featuredPost && posts.length > 1
+			? posts.filter((post) => post.slug !== featuredPost.slug)
+			: posts
 	);
 
 	return (

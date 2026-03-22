@@ -58,11 +58,11 @@ export default function BlogDirectory({ postsByLocale }: BlogDirectoryProps) {
 								</div>
 								<div className="mt-10 border-t border-stone-200 pt-5">
 									<p className="text-xs uppercase tracking-[0.22em] text-stone-500">
-										{posts.length} published piece{posts.length === 1 ? '' : 's'}
+										{copy.portalPublishedCount(posts.length)}
 									</p>
 									{latest ? (
 										<div className="mt-5 space-y-2">
-											<p className="text-sm text-stone-500">Latest</p>
+											<p className="text-sm text-stone-500">{copy.portalLatestLabel}</p>
 											<p className="font-serif text-2xl text-stone-950">{latest.title}</p>
 											<p className="max-w-lg text-sm leading-6 text-stone-600">
 												{latest.description}
@@ -70,8 +70,7 @@ export default function BlogDirectory({ postsByLocale }: BlogDirectoryProps) {
 										</div>
 									) : (
 										<p className="mt-5 max-w-lg text-sm leading-6 text-stone-600">
-											No localized posts yet. This view is prepared so new essays can be
-											published without reworking the structure later.
+											{copy.portalNoPosts}
 										</p>
 									)}
 								</div>
@@ -80,7 +79,7 @@ export default function BlogDirectory({ postsByLocale }: BlogDirectoryProps) {
 										href={`/${locale}/blog`}
 										className="inline-flex items-center gap-3 border-b border-stone-900 pb-1 text-sm uppercase tracking-[0.24em] text-stone-950 transition-colors duration-200 hover:text-orange-700 hover:border-orange-700"
 									>
-										Open {LOCALE_LABEL[locale]}
+										{copy.portalOpenLabel} {LOCALE_LABEL[locale]}
 									</Link>
 								</div>
 							</section>

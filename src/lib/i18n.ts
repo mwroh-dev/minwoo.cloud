@@ -11,6 +11,7 @@ export const LOCALE_LABEL: Record<Locale, string> = {
 
 export const BLOG_COPY = {
 	en: {
+		backToIndex: 'Back to archive',
 		description:
 			'Essays on judgment, systems taste, and the parts of software work that stay stubbornly human.',
 		emptyDescription:
@@ -26,7 +27,13 @@ export const BLOG_COPY = {
 		portalDescription:
 			'A bilingual reading structure for essays, field notes, and slower opinions about building in the AI era.',
 		portalLabel: 'Writings',
+		portalLatestLabel: 'Latest',
+		portalNoPosts:
+			'No localized posts yet. This view is prepared so new essays can be published without reworking the structure later.',
+		portalOpenLabel: 'Open edition',
+		portalPublishedCount: (count: number) => `${count} published piece${count === 1 ? '' : 's'}`,
 		portalTitle: 'Choose a reading edition.',
+		readInLabel: 'Read in',
 		readMore: 'Read essay',
 		sectionLabel: 'Archive by thread',
 		statusActive: 'Available now',
@@ -34,6 +41,7 @@ export const BLOG_COPY = {
 		title: 'Notes for developers learning to operate in the age of AI agents.',
 	},
 	ko: {
+		backToIndex: '목록으로 돌아가기',
 		description:
 			'AI 시대에 개발자가 어떤 감각을 지켜야 하는지, 어떤 역량이 더 중요해지는지에 대한 글을 담아갑니다.',
 		emptyDescription:
@@ -49,7 +57,13 @@ export const BLOG_COPY = {
 		portalDescription:
 			'에세이와 필드 노트, 그리고 AI 시대 개발자의 생존 전략을 담기 위한 이중 언어형 블로그 구조입니다.',
 		portalLabel: 'Writings',
+		portalLatestLabel: '가장 최근 글',
+		portalNoPosts:
+			'아직 한국어 글은 없습니다. 다만 이후 글이 추가되어도 구조를 다시 뜯어고치지 않도록 에디션 뷰를 먼저 준비해두었습니다.',
+		portalOpenLabel: '에디션 열기',
+		portalPublishedCount: (count: number) => `게시된 글 ${count}개`,
 		portalTitle: '읽을 에디션을 고르세요.',
+		readInLabel: '다른 언어로 읽기',
 		readMore: '글 읽기',
 		sectionLabel: '주제별 아카이브',
 		statusActive: '지금 읽을 수 있음',
@@ -67,12 +81,18 @@ export const BLOG_COPY = {
 		focus: string[];
 		portalDescription: string;
 		portalLabel: string;
+		portalLatestLabel: string;
+		portalNoPosts: string;
+		portalOpenLabel: string;
+		portalPublishedCount: (count: number) => string;
 		portalTitle: string;
+		readInLabel: string;
 		readMore: string;
 		sectionLabel: string;
 		statusActive: string;
 		statusSoon: string;
 		title: string;
+		backToIndex: string;
 	}
 >;
 

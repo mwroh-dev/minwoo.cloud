@@ -9,6 +9,7 @@ import rehypePrism from 'rehype-prism-plus';
 import remarkGfm from 'remark-gfm';
 
 import {
+	BLOG_COPY,
 	getPostDateLabel,
 	getReadingTimeLabel,
 	isLocale,
@@ -91,6 +92,7 @@ export default async function LocalizedBlogPostPage({
 	}
 
 	const { content, post } = document;
+	const copy = BLOG_COPY[locale];
 	const alternates = getAlternatePosts(post);
 	const compiledMDX = await evaluate(content, {
 		...runtime,
@@ -106,7 +108,7 @@ export default async function LocalizedBlogPostPage({
 					href={`/${locale}/blog`}
 					className="text-xs uppercase tracking-[0.24em] text-stone-500 transition-colors duration-200 hover:text-stone-950"
 				>
-					Back to {LOCALE_LABEL[locale]}
+					{copy.backToIndex}
 				</Link>
 
 				<header className="mt-8 border-t border-stone-300 pt-6">
@@ -127,7 +129,7 @@ export default async function LocalizedBlogPostPage({
 									href={alternate.href}
 									className="transition-colors duration-200 hover:text-stone-950"
 								>
-									Read in {LOCALE_LABEL[alternate.locale]}
+									{copy.readInLabel} {LOCALE_LABEL[alternate.locale]}
 								</Link>
 							))}
 						</div>
