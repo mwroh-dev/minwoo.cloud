@@ -1,15 +1,19 @@
 import Link from 'next/link';
 
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
+
 import {
 	BLOG_COPY,
+	getLocaleBlogPath,
 	getPostDateLabel,
 	getReadingTimeLabel,
+	LOCALE_CODE_LABEL,
 	type Locale,
 } from '@/lib/i18n';
 import { getGroupedPosts } from '@/lib/post';
 import { IPost } from '@/types/post';
 
-import LocaleSwitch from './locale-switch';
+import LanguageToggle from './language-toggle';
 
 type BlogIndexProps = {
 	locale: Locale;
@@ -26,12 +30,26 @@ export default function BlogIndex({ locale, posts }: BlogIndexProps) {
 	);
 
 	return (
-		<section className="px-6 pb-20 pt-28 sm:px-8">
+		<section className="px-6 pb-20 pt-24 sm:px-8">
 			<div className="mx-auto max-w-6xl">
 				<div className="flex flex-col gap-6 border-t border-stone-300 pt-4">
 					<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 						<p className="text-xs uppercase tracking-[0.28em] text-stone-500">{copy.eyebrow}</p>
-						<LocaleSwitch currentLocale={locale} />
+						<LanguageToggle
+							label={copy.switchLabel}
+							items={[
+								{
+									active: locale === 'ko',
+									href: getLocaleBlogPath('ko'),
+									label: LOCALE_CODE_LABEL.ko,
+								},
+								{
+									active: locale === 'en',
+									href: getLocaleBlogPath('en'),
+									label: LOCALE_CODE_LABEL.en,
+								},
+							]}
+						/>
 					</div>
 					<div className="grid gap-12 lg:grid-cols-[1.3fr_0.7fr]">
 						<div className="space-y-6">
@@ -51,7 +69,7 @@ export default function BlogIndex({ locale, posts }: BlogIndexProps) {
 				</div>
 
 				{featuredPost ? (
-					<section className="mt-20 border-t border-stone-300 pt-5">
+					<section className="mt-18 border-t border-stone-300 pt-5 sm:mt-20">
 						<p className="text-xs uppercase tracking-[0.22em] text-stone-500">
 							{copy.featuredLabel}
 						</p>
@@ -71,9 +89,10 @@ export default function BlogIndex({ locale, posts }: BlogIndexProps) {
 								</p>
 								<Link
 									href={featuredPost.href}
-									className="inline-flex items-center gap-3 border-b border-stone-900 pb-1 text-sm uppercase tracking-[0.24em] text-stone-950 transition-colors duration-200 hover:border-orange-700 hover:text-orange-700"
+									className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-sm uppercase tracking-[0.22em] text-stone-950 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-700 hover:text-orange-700"
 								>
 									{copy.readMore}
+									<ArrowUpRight size={15} strokeWidth={1.8} />
 								</Link>
 							</div>
 						</div>
@@ -104,7 +123,7 @@ export default function BlogIndex({ locale, posts }: BlogIndexProps) {
 											<li key={post.href}>
 												<Link
 													href={post.href}
-													className="grid gap-4 py-4 transition-transform duration-200 hover:translate-x-1 sm:grid-cols-[170px_1fr]"
+													className="group grid gap-4 rounded-2xl px-4 py-4 transition-all duration-200 hover:translate-x-1 hover:bg-white/65 sm:grid-cols-[170px_1fr_auto]"
 												>
 													<div className="font-mono text-xs uppercase tracking-[0.22em] text-stone-500">
 														<div>{getPostDateLabel(post.date, locale)}</div>
@@ -119,6 +138,9 @@ export default function BlogIndex({ locale, posts }: BlogIndexProps) {
 														<p className="max-w-2xl text-sm leading-6 text-stone-600">
 															{post.description}
 														</p>
+													</div>
+													<div className="hidden items-center justify-end text-stone-400 transition-colors duration-200 group-hover:text-orange-700 sm:flex">
+														<ArrowRight size={18} strokeWidth={1.8} />
 													</div>
 												</Link>
 											</li>

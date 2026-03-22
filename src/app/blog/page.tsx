@@ -1,11 +1,8 @@
-import BlogDirectory from '@/components/blog/blog-directory';
+import BlogIndex from '@/components/blog/blog-index';
 import { getPostsByLocale } from '@/lib/post';
 
 export default function BlogPage() {
-	const postsByLocale = {
-		en: getPostsByLocale('en'),
-		ko: getPostsByLocale('ko'),
-	};
+	const posts = getPostsByLocale('ko');
 
-	return <BlogDirectory postsByLocale={postsByLocale} />;
+	return <BlogIndex locale="ko" posts={posts} />;
 }

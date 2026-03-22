@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { MDXComponents } from 'mdx/types';
 import { Metadata } from 'next';
 import Link from 'next/link';
@@ -8,8 +9,12 @@ import * as runtime from 'react/jsx-runtime';
 import rehypePrism from 'rehype-prism-plus';
 import remarkGfm from 'remark-gfm';
 
+import LanguageToggle from '@/components/blog/language-toggle';
 import {
 	BLOG_COPY,
+	LOCALES,
+	LOCALE_CODE_LABEL,
+	getLocaleBlogPath,
 	getPostDateLabel,
 	getReadingTimeLabel,
 	isLocale,
@@ -94,6 +99,7 @@ export default async function LocalizedBlogPostPage({
 	const { content, post } = document;
 	const copy = BLOG_COPY[locale];
 	const alternates = getAlternatePosts(post);
+	const alternateMap = new Map(alternates.map((alternate) => [alternate.locale, alternate]));
 	const compiledMDX = await evaluate(content, {
 		...runtime,
 		useMDXComponents: () => useMDXComponents(),
@@ -105,9 +111,10 @@ export default async function LocalizedBlogPostPage({
 		<section className="px-6 pb-20 pt-16 sm:px-8 sm:pt-20">
 			<article className="mx-auto max-w-3xl" lang={locale}>
 				<Link
-					href={`/${locale}/blog`}
-					className="text-xs uppercase tracking-[0.24em] text-stone-500 transition-colors duration-200 hover:text-stone-950"
+					href={getLocaleBlogPath(locale)}
+					className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.22em] text-stone-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-950 hover:text-stone-950"
 				>
+					<ArrowLeft size={14} strokeWidth={1.8} />
 					{copy.backToIndex}
 				</Link>
 
@@ -121,23 +128,46 @@ export default async function LocalizedBlogPostPage({
 						<span>{getReadingTimeLabel(post.readingTimeMinutes, locale)}</span>
 						<span>{LOCALE_LABEL[locale]}</span>
 					</div>
-					{alternates.length > 0 && (
-						<div className="mt-4 flex flex-wrap gap-4 text-sm text-stone-500">
-							{alternates.map((alternate) => (
-								<Link
-									key={alternate.href}
-									href={alternate.href}
-									className="transition-colors duration-200 hover:text-stone-950"
-								>
-									{copy.readInLabel} {LOCALE_LABEL[alternate.locale]}
-								</Link>
-							))}
-						</div>
-					)}
+					<div className="mt-5">
+						<LanguageToggle
+							label={copy.translateLabel}
+							items={LOCALES.map((candidateLocale) => ({
+								active: candidateLocale === locale,
+								disabled:
+									candidateLocale !== locale && !alternateMap.get(candidateLocale)?.href,
+								href: alternateMap.get(candidateLocale)?.href,
+								label: LOCALE_CODE_LABEL[candidateLocale],
+							}))}
+						/>
+					</div>
 					<p className="mt-8 text-lg leading-8 text-stone-600">{post.description}</p>
 				</header>
 
 				<div className="blog-prose mt-12">{compiledMDX.default({})}</div>
+
+				<div className="mt-14 border-t border-stone-200 pt-6">
+					<div className="flex flex-wrap items-center gap-3">
+						<span className="text-[11px] uppercase tracking-[0.24em] text-stone-500">
+							{copy.readInLabel}
+						</span>
+						{alternates.length > 0 ? (
+							alternates.map((alternate) => (
+								<Link
+									key={alternate.href}
+									href={alternate.href}
+									className="inline-flex items-center gap-1 rounded-full border border-stone-300 bg-white/80 px-3 py-1.5 text-[11px] uppercase tracking-[0.22em] text-stone-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-700 hover:text-orange-700"
+								>
+									{LOCALE_LABEL[alternate.locale]}
+									<ArrowUpRight size={14} strokeWidth={1.8} />
+								</Link>
+							))
+						) : (
+							<span className="rounded-full border border-stone-200 px-3 py-1.5 text-[11px] uppercase tracking-[0.22em] text-stone-300">
+								{LOCALE_LABEL[locale]}
+							</span>
+						)}
+					</div>
+				</div>
 			</article>
 		</section>
 	);

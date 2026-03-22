@@ -2,11 +2,16 @@ export const LOCALES = ['en', 'ko'] as const;
 
 export type Locale = (typeof LOCALES)[number];
 
-export const DEFAULT_LOCALE: Locale = 'en';
+export const DEFAULT_LOCALE: Locale = 'ko';
 
 export const LOCALE_LABEL: Record<Locale, string> = {
 	en: 'English',
 	ko: '한국어',
+};
+
+export const LOCALE_CODE_LABEL: Record<Locale, string> = {
+	en: 'EN',
+	ko: 'KO',
 };
 
 export const BLOG_COPY = {
@@ -38,7 +43,9 @@ export const BLOG_COPY = {
 		sectionLabel: 'Archive by thread',
 		statusActive: 'Available now',
 		statusSoon: 'Preparing now',
+		switchLabel: 'View',
 		title: 'Notes for developers learning to operate in the age of AI agents.',
+		translateLabel: 'Translate',
 	},
 	ko: {
 		backToIndex: '목록으로 돌아가기',
@@ -68,7 +75,9 @@ export const BLOG_COPY = {
 		sectionLabel: '주제별 아카이브',
 		statusActive: '지금 읽을 수 있음',
 		statusSoon: '준비 중',
+		switchLabel: 'View',
 		title: 'AI 에이전트의 시대를 통과하는 개발자를 위한 메모.',
+		translateLabel: 'Translate',
 	},
 } satisfies Record<
 	Locale,
@@ -91,7 +100,9 @@ export const BLOG_COPY = {
 		sectionLabel: string;
 		statusActive: string;
 		statusSoon: string;
+		switchLabel: string;
 		title: string;
+		translateLabel: string;
 		backToIndex: string;
 	}
 >;
@@ -114,4 +125,8 @@ export function getReadingTimeLabel(minutes: number, locale: Locale) {
 
 export function getAlternateLocale(locale: Locale): Locale {
 	return locale === 'en' ? 'ko' : 'en';
+}
+
+export function getLocaleBlogPath(locale: Locale) {
+	return locale === DEFAULT_LOCALE ? '/blog' : `/${locale}/blog`;
 }
