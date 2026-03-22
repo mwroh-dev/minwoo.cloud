@@ -1,7 +1,7 @@
 import './globals.css';
 
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Newsreader } from 'next/font/google';
 
 import Footer from '@/components/footer';
 import Header from '@/components/header';
@@ -10,6 +10,7 @@ import { GoogleAnalytics as NextGA } from '@next/third-parties/google';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+const newsreader = Newsreader({ variable: '--font-newsreader', subsets: ['latin'] });
 
 export const metadata: Metadata = generateMetadata();
 
@@ -33,11 +34,11 @@ export default function RootLayout({
 	return (
 		<html
 			lang="en"
-			className={`${geistSans.variable} ${geistMono.variable}`}
+			className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable}`}
 			suppressHydrationWarning
 		>
-			<body className="max-w-screen-md mx-auto">
-				<main className="flex flex-col w-full h-full">
+			<body>
+				<main className="flex min-h-screen flex-col">
 					<Header />
 					{children}
 					<Footer />

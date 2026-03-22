@@ -2,9 +2,9 @@ import { Metadata } from 'next';
 
 import { BLOG_URL } from '@/lib/post';
 
-const baseTitle = 'Minwoo.Roh | Web Developer';
+const baseTitle = 'Minwoo Roh | AI-Era Developer Notes';
 const baseDescription =
-	'Seasoned in React.js & Experienced Nest.js | Problem-Solver Exploring Complex Domains';
+	'Editorial notes on software craft, AI-native workflows, and how developers stay useful as agents get stronger.';
 const baseThumbnail = '/og.png';
 
 type TInput = {
