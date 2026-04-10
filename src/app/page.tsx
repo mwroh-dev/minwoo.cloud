@@ -26,11 +26,14 @@ export default function Home() {
 							AI 시대 개발자 노트
 						</p>
 						<h1 className="font-serif text-5xl leading-[0.92] text-stone-950 sm:text-7xl">
-							에이전트가 코드를 쓰는 시대에, 개발자가 어떤 감각으로 남아야 하는지 기록합니다.
+							에이전트가 코드를 쓰는 시대일수록, 개발자는 문제를 잘게 쪼개고 조건을
+							선명하게 만드는 사람이어야 한다.
 						</h1>
 						<p className="max-w-2xl text-base leading-7 text-stone-600 sm:text-lg">
-							Cielo.dev는 예전 커리어 아카이브에서 벗어나, 판단력과 시스템 감각, 그리고
-							반복 가능한 작업 습관을 다루는 에디토리얼 홈으로 바뀌고 있습니다.
+							저는 요즘 개발자의 경쟁력이 구현 속도보다 문제 정의, 작업 분해, 명세,
+							그리고 결과를 설명 가능한 형태로 만드는 데서 갈린다고 생각합니다.
+							Cielo.dev는 개인의 사고를 더 또렷하게 만들고, 그 또렷함이 팀의 병목을
+							어떻게 줄이는지 기록하는 곳입니다.
 						</p>
 						<div className="flex flex-wrap items-center gap-4 pt-2">
 							<Link
@@ -49,14 +52,13 @@ export default function Home() {
 								지금 붙잡고 있는 질문
 							</p>
 							<p className="font-serif text-2xl leading-tight text-stone-950">
-								생산성 담론보다 더 오래 남는 건, 실패를 회수하고 감각으로 바꾸는 작업 방식인지
-								모릅니다.
+								개인의 명확함은 결국 팀의 신뢰와 병목 감소로 이어질 수 있을까.
 							</p>
 						</div>
 						<ul className="space-y-3 text-sm leading-6 text-stone-600">
-							<li>코드 생성이 기본값이 된 뒤에도 개발자 레버리지는 어디에 남는가.</li>
-							<li>좋은 레시피보다 실패를 붙잡는 기록 습관이 왜 더 중요해지는가.</li>
-							<li>도구 활용을 넘어 실제 제품 감각과 운영 감각은 어떻게 쌓이는가.</li>
+							<li>원하는 결과를 어디까지 쪼개야 에이전트가 헛돌지 않는가.</li>
+							<li>좋은 구현은 코드보다 먼저 어떤 조건과 범위에서 결정되는가.</li>
+							<li>개인의 명확함은 어떻게 팀의 병목 감소로 이어지는가.</li>
 						</ul>
 						<Link
 							href="/blog/survivorship-bias-and-failure-hooks"
