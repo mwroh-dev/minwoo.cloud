@@ -26,14 +26,14 @@ export default function Home() {
 							AI 시대 개발자 노트
 						</p>
 						<h1 className="font-serif text-5xl leading-[0.92] text-stone-950 sm:text-7xl">
-							에이전트가 코드를 쓰는 시대일수록, 개발자는 문제를 잘게 쪼개고 조건을
-							선명하게 만드는 사람이어야 한다.
+							에이전트가 코드를 쓰는 시대에, 개발자는 무엇을 더 잘해야 하는지 계속
+							생각하고 있습니다.
 						</h1>
 						<p className="max-w-2xl text-base leading-7 text-stone-600 sm:text-lg">
 							저는 요즘 개발자의 경쟁력이 구현 속도보다 문제 정의, 작업 분해, 명세,
 							그리고 결과를 설명 가능한 형태로 만드는 데서 갈린다고 생각합니다.
-							Cielo.dev는 개인의 사고를 더 또렷하게 만들고, 그 또렷함이 팀의 병목을
-							어떻게 줄이는지 기록하는 곳입니다.
+							이곳에는 개인의 사고를 더 또렷하게 만들고, 그 또렷함이 팀의 병목을
+							어떻게 줄일 수 있는지에 대한 기록을 남기고 있습니다.
 						</p>
 						<div className="flex flex-wrap items-center gap-4 pt-2">
 							<Link
@@ -49,7 +49,7 @@ export default function Home() {
 					<div className="space-y-7 lg:ml-auto lg:max-w-xl">
 						<div className="space-y-2">
 							<p className="text-xs uppercase tracking-[0.24em] text-stone-500">
-								지금 붙잡고 있는 질문
+								요즘 자주 돌아오는 질문
 							</p>
 							<p className="font-serif text-2xl leading-tight text-stone-950">
 								개인의 명확함은 결국 팀의 신뢰와 병목 감소로 이어질 수 있을까.
