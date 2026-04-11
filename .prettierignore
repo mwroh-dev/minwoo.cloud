@@ -3,3 +3,10 @@ node_modules
 out
 dist
 public
+.claude
+.omx
+.superpowers
+coverage
+playwright-report
+test-results
+.husky/_

@@ -25,6 +25,7 @@ When searching for GraphQL optimization techniques, common topics like DataLoade
 When initiating the optimization process, I prioritized analyzing frontend code over backend code. Since the frontend consumes the data, reviewing its usage patterns first provided a more effective starting point.
 
 Two major anti-patterns emerged:
+
 1. Reusing the same query name across different components, causing conflicts.
 2. Creating excessively large fragments and overusing them.
 
@@ -83,12 +84,12 @@ To address this, we later established GraphQL query guidelines within the fronte
 - Ensuring fragments are used meaningfully.
 - Verifying that requested properties are actually used in components.
 
-
 ## BackEnd: Implementing Subscription
 
 When dealing with frequently changing, real-time data, we evaluated various approaches to determine the best solution. At this time, we were also incorporating Domain-Driven Design (DDD) and transitioning towards an event-driven architecture.
 
 With our team aligned through ubiquitous language and event storming, integrating subscriptions became a natural step forward. This enabled us to classify data retrieval strategies:
+
 - Static data → Cache-first policy.
 - Dynamic, real-time data → Subscription-based updates.
 
@@ -103,12 +104,12 @@ subscription OnUpdatePrimaryAssessment {
 }
 ```
 
-
 ## Product Team: Optimization Reducing Query Depth
 
 Optimizing query depth required more than just code changes—it necessitated a multi-faceted approach. This was not solely a development issue; designers, product managers, and all relevant stakeholders needed to collaborate on sustainable solutions.
 
 We conducted discussions to find long-term improvements:
+
 - **Development team:** Optimized query depth while ensuring necessary data availability.
 - **Design team:** Explored UI adjustments to minimize excessive data requests.
 - **Product team:** Reevaluated feature requirements to ensure only essential data was retrieved.

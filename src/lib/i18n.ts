@@ -3,6 +3,8 @@ export const LOCALES = ['en', 'ko'] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = 'ko';
+export const ENGLISH_LOCALE: Locale = 'en';
+export const KOREAN_LOCALE: Locale = 'ko';
 
 export const LOCALE_LABEL: Record<Locale, string> = {
 	en: 'English',
@@ -129,4 +131,10 @@ export function getAlternateLocale(locale: Locale): Locale {
 
 export function getLocaleBlogPath(locale: Locale) {
 	return locale === DEFAULT_LOCALE ? '/blog' : `/${locale}/blog`;
+}
+
+export function getLocalizedBlogPostPath(locale: Locale, slug: string) {
+	const archivePath = getLocaleBlogPath(locale);
+
+	return `${archivePath}/${slug}`;
 }

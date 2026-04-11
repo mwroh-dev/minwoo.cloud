@@ -3,13 +3,18 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const MenuLink = ({ href, title, pathname }: { href: string; title: string; pathname: string }) => {
+import { getLocaleBlogPath, DEFAULT_LOCALE } from '@/lib/i18n';
+import { HOME_PATH } from '@/lib/site';
+
+const MenuLink = ({ href, pathname, title }: { href: string; pathname: string; title: string }) => {
 	const isFocus = (href: string) => {
-		if (href === '/blog') {
-			return pathname === href || /\/blog(\/|$)/.test(pathname);
+		const defaultBlogPath = getLocaleBlogPath(DEFAULT_LOCALE);
+
+		if (href === defaultBlogPath) {
+			return pathname.includes(defaultBlogPath);
 		}
 
-		return href === pathname || (href !== '/' && pathname.startsWith(href));
+		return href === pathname || (href !== HOME_PATH && pathname.startsWith(href));
 	};
 
 	return (
@@ -38,12 +43,12 @@ function Header() {
 				border-b border-stone-200/80 bg-[rgba(246,242,234,0.84)] backdrop-blur-xl"
 		>
 			<nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 sm:px-8">
-				<Link href="/" className="rounded-full px-2 py-1 font-serif text-xl text-stone-950">
+				<Link href={HOME_PATH} className="rounded-full px-2 py-1 font-serif text-xl text-stone-950">
 					Minwoo Roh
 				</Link>
 				<ul className="flex justify-start space-x-6">
-					<MenuLink title="Home" href="/" pathname={pathname} />
-					<MenuLink title="Writings" href="/blog" pathname={pathname} />
+					<MenuLink title="Home" href={HOME_PATH} pathname={pathname} />
+					<MenuLink title="Writings" href={getLocaleBlogPath(DEFAULT_LOCALE)} pathname={pathname} />
 				</ul>
 			</nav>
 		</header>

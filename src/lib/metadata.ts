@@ -7,14 +7,14 @@ const baseDescription =
 	'Editorial notes on software craft, AI-native workflows, and how developers stay useful as agents get stronger.';
 const baseThumbnail = '/og.png';
 
-type TInput = {
+type MetadataInput = {
 	description?: string;
 	thumbnail?: string;
 	title?: string;
 	url?: string;
 };
 
-export const generateMetadata = (input?: TInput): Metadata => {
+export const buildMetadata = (input?: MetadataInput): Metadata => {
 	const description = input?.description || baseDescription;
 	const thumbnail = input?.thumbnail || baseThumbnail;
 	const title = input?.title || baseTitle;

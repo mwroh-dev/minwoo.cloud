@@ -2,32 +2,88 @@ import Link from 'next/link';
 
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
+import LanguageToggle from '@/components/blog/language-toggle';
 import {
 	BLOG_COPY,
+	ENGLISH_LOCALE,
 	getLocaleBlogPath,
 	getPostDateLabel,
 	getReadingTimeLabel,
+	KOREAN_LOCALE,
 	LOCALE_CODE_LABEL,
 	type Locale,
 } from '@/lib/i18n';
 import { getGroupedPosts } from '@/lib/post';
-import { IPost } from '@/types/post';
+import { IGroupedPosts, IPost } from '@/types/post';
 
-import LanguageToggle from './language-toggle';
+function ArchiveGroupSection({ group, locale }: { group: IGroupedPosts; locale: Locale }) {
+	const postItems = group.posts.map((post) => (
+		<li key={post.href}>
+			<Link
+				href={post.href}
+				className="group grid gap-4 rounded-2xl px-4 py-4 transition-all duration-200 hover:translate-x-1 hover:bg-white/65 sm:grid-cols-[170px_1fr_auto]"
+			>
+				<div className="font-mono text-xs uppercase tracking-[0.22em] text-stone-500">
+					<div>{getPostDateLabel(post.date, locale)}</div>
+					<div className="mt-2">{getReadingTimeLabel(post.readingTimeMinutes, locale)}</div>
+				</div>
+				<div className="space-y-2">
+					<p className="font-serif text-2xl leading-tight text-stone-950">{post.title}</p>
+					<p className="max-w-2xl text-sm leading-6 text-stone-600">{post.description}</p>
+				</div>
+				<div className="hidden items-center justify-end text-stone-400 transition-colors duration-200 group-hover:text-orange-700 sm:flex">
+					<ArrowRight size={18} strokeWidth={1.8} />
+				</div>
+			</Link>
+		</li>
+	));
 
-type BlogIndexProps = {
-	locale: Locale;
-	posts: IPost[];
-};
+	return (
+		<div className="grid gap-6 border-t border-stone-200 pt-5 lg:grid-cols-[220px_1fr]">
+			<h3 className="font-serif text-2xl text-stone-950">{group.name}</h3>
+			<ul className="divide-y divide-stone-200">{postItems}</ul>
+		</div>
+	);
+}
 
-export default function BlogIndex({ locale, posts }: BlogIndexProps) {
+function EmptyArchiveState({ message }: { message: string }) {
+	return (
+		<div className="border-t border-stone-200 pt-5">
+			<p className="max-w-2xl text-sm leading-6 text-stone-600">{message}</p>
+		</div>
+	);
+}
+
+export default function BlogIndex({ locale, posts }: { locale: Locale; posts: IPost[] }) {
 	const copy = BLOG_COPY[locale];
 	const featuredPost = posts.find((post) => post.featured) ?? posts[0];
-	const groupedPosts = getGroupedPosts(
-		featuredPost && posts.length > 1
-			? posts.filter((post) => post.slug !== featuredPost.slug)
-			: posts
-	);
+	const hasSecondaryArchivePosts = Boolean(featuredPost) && posts.length > 1;
+	const archivePosts = hasSecondaryArchivePosts
+		? posts.filter((post) => post.slug !== featuredPost.slug)
+		: posts;
+	const groupedPosts = getGroupedPosts(archivePosts);
+	const focusItems = copy.focus.map((item) => <li key={item}>{item}</li>);
+	const languageToggleItems = [
+		{
+			href: getLocaleBlogPath(KOREAN_LOCALE),
+			isActive: locale === KOREAN_LOCALE,
+			label: LOCALE_CODE_LABEL[KOREAN_LOCALE],
+		},
+		{
+			href: getLocaleBlogPath(ENGLISH_LOCALE),
+			isActive: locale === ENGLISH_LOCALE,
+			label: LOCALE_CODE_LABEL[ENGLISH_LOCALE],
+		},
+	];
+	const groupedPostSections = groupedPosts.map((group) => (
+		<ArchiveGroupSection key={group.name} group={group} locale={locale} />
+	));
+	const archiveContent =
+		groupedPostSections.length > 0 ? (
+			groupedPostSections
+		) : (
+			<EmptyArchiveState message={copy.emptyDescription} />
+		);
 
 	return (
 		<section className="px-6 pb-20 pt-24 sm:px-8">
@@ -35,21 +91,7 @@ export default function BlogIndex({ locale, posts }: BlogIndexProps) {
 				<div className="flex flex-col gap-6 border-t border-stone-300 pt-4">
 					<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 						<p className="text-xs uppercase tracking-[0.28em] text-stone-500">{copy.eyebrow}</p>
-						<LanguageToggle
-							label={copy.switchLabel}
-							items={[
-								{
-									active: locale === 'ko',
-									href: getLocaleBlogPath('ko'),
-									label: LOCALE_CODE_LABEL.ko,
-								},
-								{
-									active: locale === 'en',
-									href: getLocaleBlogPath('en'),
-									label: LOCALE_CODE_LABEL.en,
-								},
-							]}
-						/>
+						<LanguageToggle label={copy.switchLabel} items={languageToggleItems} />
 					</div>
 					<div className="grid gap-12 lg:grid-cols-[1.3fr_0.7fr]">
 						<div className="space-y-6">
@@ -61,9 +103,7 @@ export default function BlogIndex({ locale, posts }: BlogIndexProps) {
 							</p>
 						</div>
 						<ul className="space-y-3 border-t border-stone-200 pt-4 text-sm leading-6 text-stone-600 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-							{copy.focus.map((item) => (
-								<li key={item}>{item}</li>
-							))}
+							{focusItems}
 						</ul>
 					</div>
 				</div>
@@ -107,55 +147,8 @@ export default function BlogIndex({ locale, posts }: BlogIndexProps) {
 				)}
 
 				<section className="mt-20 border-t border-stone-300 pt-5">
-					<p className="text-xs uppercase tracking-[0.22em] text-stone-500">
-						{copy.sectionLabel}
-					</p>
-					<div className="mt-10 space-y-14">
-						{groupedPosts.length > 0 ? (
-							groupedPosts.map((group) => (
-								<div
-									key={group.name}
-									className="grid gap-6 border-t border-stone-200 pt-5 lg:grid-cols-[220px_1fr]"
-								>
-									<h3 className="font-serif text-2xl text-stone-950">{group.name}</h3>
-									<ul className="divide-y divide-stone-200">
-										{group.posts.map((post) => (
-											<li key={post.href}>
-												<Link
-													href={post.href}
-													className="group grid gap-4 rounded-2xl px-4 py-4 transition-all duration-200 hover:translate-x-1 hover:bg-white/65 sm:grid-cols-[170px_1fr_auto]"
-												>
-													<div className="font-mono text-xs uppercase tracking-[0.22em] text-stone-500">
-														<div>{getPostDateLabel(post.date, locale)}</div>
-														<div className="mt-2">
-															{getReadingTimeLabel(post.readingTimeMinutes, locale)}
-														</div>
-													</div>
-													<div className="space-y-2">
-														<p className="font-serif text-2xl leading-tight text-stone-950">
-															{post.title}
-														</p>
-														<p className="max-w-2xl text-sm leading-6 text-stone-600">
-															{post.description}
-														</p>
-													</div>
-													<div className="hidden items-center justify-end text-stone-400 transition-colors duration-200 group-hover:text-orange-700 sm:flex">
-														<ArrowRight size={18} strokeWidth={1.8} />
-													</div>
-												</Link>
-											</li>
-										))}
-									</ul>
-								</div>
-							))
-						) : (
-							<div className="border-t border-stone-200 pt-5">
-								<p className="max-w-2xl text-sm leading-6 text-stone-600">
-									{copy.emptyDescription}
-								</p>
-							</div>
-						)}
-					</div>
+					<p className="text-xs uppercase tracking-[0.22em] text-stone-500">{copy.sectionLabel}</p>
+					<div className="mt-10 space-y-14">{archiveContent}</div>
 				</section>
 			</div>
 		</section>

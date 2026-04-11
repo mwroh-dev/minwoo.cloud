@@ -9,7 +9,7 @@ import { IGroupedPosts, IPost } from '@/types/post';
 export const CONTENT_PATH = path.join(process.cwd(), 'src', 'content');
 export const BLOG_URL = 'https://minwoo.cloud';
 
-const PostSchema = z.object({
+export const PostFrontmatterSchema = z.object({
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 	description: z.string(),
 	featured: z.boolean().optional(),
@@ -20,12 +20,19 @@ const PostSchema = z.object({
 	translationKey: z.string().optional(),
 });
 
-function getLocaleDirectory(locale: Locale) {
-	return path.join(CONTENT_PATH, locale);
+type BuildPostInput = {
+	fileContents: string;
+	locale: Locale;
+	slug: string;
+	sourcePath: string;
+};
+
+function getLocaleDirectory(locale: Locale, contentPath = CONTENT_PATH) {
+	return path.join(contentPath, locale);
 }
 
-function getLocalePostPaths(locale: Locale) {
-	const directory = getLocaleDirectory(locale);
+function getLocalePostPaths(locale: Locale, contentPath = CONTENT_PATH) {
+	const directory = getLocaleDirectory(locale, contentPath);
 	if (!fs.existsSync(directory)) {
 		return [];
 	}
@@ -55,12 +62,14 @@ function getSeriesLabel(series: string | undefined, tags: string[] | undefined) 
 	return tags?.[0] ?? 'Archive';
 }
 
-function parsePostFile(filePath: string, locale: Locale): IPost | null {
-	const fileContents = fs.readFileSync(filePath, 'utf8');
+export function buildPostFromSource({
+	fileContents,
+	locale,
+	slug,
+	sourcePath,
+}: BuildPostInput): IPost | null {
 	const { content, data } = matter(fileContents);
-	const slug = path.basename(filePath, '.mdx');
-
-	const parsed = PostSchema.safeParse({
+	const parsed = PostFrontmatterSchema.safeParse({
 		date: data.date,
 		description: data.description,
 		featured: data.featured,
@@ -72,7 +81,7 @@ function parsePostFile(filePath: string, locale: Locale): IPost | null {
 	});
 
 	if (!parsed.success) {
-		console.error(`Invalid metadata in ${filePath}`, parsed.error);
+		console.error(`Invalid metadata in ${sourcePath}`, parsed.error);
 		return null;
 	}
 
@@ -85,7 +94,7 @@ function parsePostFile(filePath: string, locale: Locale): IPost | null {
 		readingTimeMinutes: estimateReadingTime(content, locale),
 		series: getSeriesLabel(parsed.data.series, parsed.data.tags),
 		slug,
-		sourcePath: filePath,
+		sourcePath,
 		tags: parsed.data.tags ?? [],
 		thumbnail: parsed.data.thumbnail,
 		title: parsed.data.title,
@@ -93,32 +102,44 @@ function parsePostFile(filePath: string, locale: Locale): IPost | null {
 	};
 }
 
-function loadPosts(locale: Locale) {
+function parsePostFile(filePath: string, locale: Locale): IPost | null {
+	const fileContents = fs.readFileSync(filePath, 'utf8');
+	const slug = path.basename(filePath, '.mdx');
+
+	return buildPostFromSource({
+		fileContents,
+		locale,
+		slug,
+		sourcePath: filePath,
+	});
+}
+
+function loadPosts(locale: Locale, contentPath = CONTENT_PATH) {
 	return sortPosts(
-		getLocalePostPaths(locale)
+		getLocalePostPaths(locale, contentPath)
 			.map((filePath) => parsePostFile(filePath, locale))
-			.filter((post): post is IPost => post !== null)
+			.filter((post): post is IPost => post !== null),
 	);
 }
 
-export function getAllPosts() {
-	return sortPosts(LOCALES.flatMap((locale) => loadPosts(locale)));
+export function getAllPosts(contentPath = CONTENT_PATH) {
+	return sortPosts(LOCALES.flatMap((locale) => loadPosts(locale, contentPath)));
 }
 
-export function getPostsByLocale(locale: Locale) {
-	return loadPosts(locale);
+export function getPostsByLocale(locale: Locale, contentPath = CONTENT_PATH) {
+	return loadPosts(locale, contentPath);
 }
 
-export function getPostByLocaleAndSlug(locale: Locale, slug: string) {
-	return loadPosts(locale).find((post) => post.slug === slug) ?? null;
+export function getPostByLocaleAndSlug(locale: Locale, slug: string, contentPath = CONTENT_PATH) {
+	return loadPosts(locale, contentPath).find((post) => post.slug === slug) ?? null;
 }
 
-export function getPostBySlug(slug: string) {
-	return getAllPosts().find((post) => post.slug === slug) ?? null;
+export function getPostBySlug(slug: string, contentPath = CONTENT_PATH) {
+	return getAllPosts(contentPath).find((post) => post.slug === slug) ?? null;
 }
 
-export function getPostDocument(locale: Locale, slug: string) {
-	const post = getPostByLocaleAndSlug(locale, slug);
+export function getPostDocument(locale: Locale, slug: string, contentPath = CONTENT_PATH) {
+	const post = getPostByLocaleAndSlug(locale, slug, contentPath);
 	if (!post) {
 		return null;
 	}
@@ -132,10 +153,10 @@ export function getPostDocument(locale: Locale, slug: string) {
 	};
 }
 
-export function getAlternatePosts(post: IPost) {
-	return getAllPosts().filter(
+export function getAlternatePosts(post: IPost, contentPath = CONTENT_PATH) {
+	return getAllPosts(contentPath).filter(
 		(candidate) =>
-			candidate.translationKey === post.translationKey && candidate.locale !== post.locale
+			candidate.translationKey === post.translationKey && candidate.locale !== post.locale,
 	);
 }
 
@@ -157,6 +178,6 @@ export function getGroupedPosts(posts: IPost[]): IGroupedPosts[] {
 		}))
 		.sort(
 			(a, b) =>
-				new Date(b.posts[0]?.date ?? 0).getTime() - new Date(a.posts[0]?.date ?? 0).getTime()
+				new Date(b.posts[0]?.date ?? 0).getTime() - new Date(a.posts[0]?.date ?? 0).getTime(),
 		);
 }

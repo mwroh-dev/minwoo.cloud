@@ -4,11 +4,31 @@
 	"private": true,
 	"packageManager": "yarn@1.22.19",
 	"scripts": {
+		"prepare": "husky",
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "eslint --fix .",
-		"format": "prettier --write ."
+		"lint": "eslint . --max-warnings=0",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier --check .",
+		"format:fix": "prettier --write .",
+		"typecheck": "tsc --noEmit",
+		"check:content": "tsx scripts/check-content.ts",
+		"test": "vitest run",
+		"test:e2e": "playwright test",
+		"test:e2e:smoke": "playwright test --grep @smoke",
+		"verify:staged": "lint-staged --concurrent false",
+		"verify:prepush": "yarn lint && yarn format && yarn typecheck && yarn test && yarn build && yarn test:e2e:smoke",
+		"verify": "yarn verify:prepush"
+	},
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx,mjs,cjs}": [
+			"prettier --write",
+			"eslint --fix --max-warnings=0"
+		],
+		"*.{json,md,mdx,css}": [
+			"prettier --write"
+		]
 	},
 	"dependencies": {
 		"@next/third-parties": "^15.1.6",
@@ -32,14 +52,19 @@
 		"@types/node": "^20",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
+		"@playwright/test": "^1.53.0",
 		"eslint": "^9.19.0",
 		"eslint-config-next": "^15.1.6",
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-prettier": "^5.2.3",
 		"gray-matter": "^4.0.3",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.2.2",
 		"postcss": "^8",
 		"prettier": "^3.4.2",
 		"tailwindcss": "^3.4.1",
+		"tsx": "^4.20.6",
+		"vitest": "^3.2.4",
 		"typescript": "^5"
 	}
 }

@@ -1,5 +1,7 @@
-import { Github, LinkedinIcon } from 'lucide-react';
 import Link from 'next/link';
+import { Github, LinkedinIcon } from 'lucide-react';
+
+import { GITHUB_PROFILE_URL, LINKEDIN_PROFILE_URL } from '@/lib/site';
 
 function Footer() {
 	return (
@@ -8,20 +10,15 @@ function Footer() {
 				<div>
 					<p className="font-serif text-xl text-stone-950">Cielo.dev</p>
 					<p className="mt-1 max-w-md leading-6">
-						Editorial notes on software craft, career durability, and building with AI-native
-						tools.
+						Editorial notes on software craft, career durability, and building with AI-native tools.
 					</p>
 				</div>
 				<div className="space-y-3">
 					<div className="flex items-center justify-start gap-3 sm:justify-end">
-						<Link href="https://github.com/mwroh-dev" target="_blank" aria-label="GitHub">
+						<Link href={GITHUB_PROFILE_URL} target="_blank" aria-label="GitHub">
 							<Github size={16} />
 						</Link>
-						<Link
-							href="https://www.linkedin.com/in/cieloroh/"
-							target="_blank"
-							aria-label="LinkedIn"
-						>
+						<Link href={LINKEDIN_PROFILE_URL} target="_blank" aria-label="LinkedIn">
 							<LinkedinIcon size={16} />
 						</Link>
 					</div>

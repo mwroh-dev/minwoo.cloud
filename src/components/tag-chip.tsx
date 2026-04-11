@@ -3,7 +3,7 @@ const defaultTagColor = 'bg-gray-300 text-gray-800';
 const tagColors: Record<string, string> = {
 	ReactJS: 'bg-blue-500 text-white',
 	Experience: 'bg-amber-500 text-white',
-	GraphQL: 'bg-pink-600 text-white'
+	GraphQL: 'bg-pink-600 text-white',
 };
 
 export default function TagChip({ tag }: { tag: string }) {

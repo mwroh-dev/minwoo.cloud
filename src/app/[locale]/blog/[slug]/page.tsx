@@ -1,10 +1,11 @@
 import React from 'react';
 
-import { ArrowLeft, ArrowUpRight } from 'lucide-react';
-import { MDXComponents } from 'mdx/types';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { evaluate } from '@mdx-js/mdx';
+import { MDXComponents } from 'mdx/types';
 import * as runtime from 'react/jsx-runtime';
 import rehypePrism from 'rehype-prism-plus';
 import remarkGfm from 'remark-gfm';
@@ -21,9 +22,42 @@ import {
 	LOCALE_LABEL,
 	type Locale,
 } from '@/lib/i18n';
-import { generateMetadata as generate } from '@/lib/metadata';
+import { buildMetadata } from '@/lib/metadata';
 import { BLOG_URL, getAllPosts, getAlternatePosts, getPostDocument } from '@/lib/post';
-import { evaluate } from '@mdx-js/mdx';
+
+function getCanonicalUrl(locale: Locale, slug: string) {
+	return `${BLOG_URL}/${locale}/blog/${slug}`;
+}
+
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+	const { locale, slug } = await params;
+
+	if (!isLocale(locale)) {
+		notFound();
+	}
+	const document = getPostDocument(locale, decodeURIComponent(slug));
+	if (!document) {
+		notFound();
+	}
+
+	return buildMetadata({
+		description: document.post.description,
+		thumbnail: document.post.thumbnail,
+		title: `${document.post.title} | Minwoo Roh`,
+		url: getCanonicalUrl(locale, document.post.slug),
+	});
+}
+
+export async function generateStaticParams() {
+	return getAllPosts().map((post) => ({
+		locale: post.locale,
+		slug: post.slug,
+	}));
+}
 
 function useMDXComponents(components: MDXComponents = {}): MDXComponents {
 	return {
@@ -43,42 +77,6 @@ function useMDXComponents(components: MDXComponents = {}): MDXComponents {
 	};
 }
 
-function getCanonicalUrl(locale: Locale, slug: string) {
-	return `${BLOG_URL}/${locale}/blog/${slug}`;
-}
-
-export async function generateMetadata({
-	params,
-}: {
-	params: Promise<{ locale: string; slug: string }>;
-}): Promise<Metadata> {
-	const { locale, slug } = await params;
-
-	if (!isLocale(locale)) {
-		notFound();
-	}
-
-	const document = getPostDocument(locale, decodeURIComponent(slug));
-
-	if (!document) {
-		notFound();
-	}
-
-	return generate({
-		description: document.post.description,
-		thumbnail: document.post.thumbnail,
-		title: `${document.post.title} | Minwoo Roh`,
-		url: getCanonicalUrl(locale, document.post.slug),
-	});
-}
-
-export async function generateStaticParams() {
-	return getAllPosts().map((post) => ({
-		locale: post.locale,
-		slug: post.slug,
-	}));
-}
-
 export default async function LocalizedBlogPostPage({
 	params,
 }: {
@@ -89,9 +87,7 @@ export default async function LocalizedBlogPostPage({
 	if (!isLocale(locale)) {
 		notFound();
 	}
-
 	const document = getPostDocument(locale, decodeURIComponent(slug));
-
 	if (!document) {
 		notFound();
 	}
@@ -100,6 +96,22 @@ export default async function LocalizedBlogPostPage({
 	const copy = BLOG_COPY[locale];
 	const alternates = getAlternatePosts(post);
 	const alternateMap = new Map(alternates.map((alternate) => [alternate.locale, alternate]));
+	const translationToggleItems = LOCALES.map((candidateLocale) => ({
+		href: alternateMap.get(candidateLocale)?.href,
+		isActive: candidateLocale === locale,
+		isDisabled: candidateLocale !== locale && !alternateMap.get(candidateLocale)?.href,
+		label: LOCALE_CODE_LABEL[candidateLocale],
+	}));
+	const alternateLinks = alternates.map((alternate) => (
+		<Link
+			key={alternate.href}
+			href={alternate.href}
+			className="inline-flex items-center gap-1 rounded-full border border-stone-300 bg-white/80 px-3 py-1.5 text-[11px] uppercase tracking-[0.22em] text-stone-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-700 hover:text-orange-700"
+		>
+			{LOCALE_LABEL[alternate.locale]}
+			<ArrowUpRight size={14} strokeWidth={1.8} />
+		</Link>
+	));
 	const compiledMDX = await evaluate(content, {
 		...runtime,
 		useMDXComponents: () => useMDXComponents(),
@@ -129,16 +141,7 @@ export default async function LocalizedBlogPostPage({
 						<span>{LOCALE_LABEL[locale]}</span>
 					</div>
 					<div className="mt-5">
-						<LanguageToggle
-							label={copy.translateLabel}
-							items={LOCALES.map((candidateLocale) => ({
-								active: candidateLocale === locale,
-								disabled:
-									candidateLocale !== locale && !alternateMap.get(candidateLocale)?.href,
-								href: alternateMap.get(candidateLocale)?.href,
-								label: LOCALE_CODE_LABEL[candidateLocale],
-							}))}
-						/>
+						<LanguageToggle label={copy.translateLabel} items={translationToggleItems} />
 					</div>
 					<p className="mt-8 text-lg leading-8 text-stone-600">{post.description}</p>
 				</header>
@@ -151,16 +154,7 @@ export default async function LocalizedBlogPostPage({
 							{copy.readInLabel}
 						</span>
 						{alternates.length > 0 ? (
-							alternates.map((alternate) => (
-								<Link
-									key={alternate.href}
-									href={alternate.href}
-									className="inline-flex items-center gap-1 rounded-full border border-stone-300 bg-white/80 px-3 py-1.5 text-[11px] uppercase tracking-[0.22em] text-stone-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-700 hover:text-orange-700"
-								>
-									{LOCALE_LABEL[alternate.locale]}
-									<ArrowUpRight size={14} strokeWidth={1.8} />
-								</Link>
-							))
+							alternateLinks
 						) : (
 							<span className="rounded-full border border-stone-200 px-3 py-1.5 text-[11px] uppercase tracking-[0.22em] text-stone-300">
 								{LOCALE_LABEL[locale]}

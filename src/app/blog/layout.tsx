@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
-import { generateMetadata } from '@/lib/metadata';
+import { buildMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = generateMetadata({
+export const metadata: Metadata = buildMetadata({
 	title: 'Minwoo Roh | Writings',
 	description:
 		'A bilingual editorial blog about AI-native software work, systems taste, and durable developer judgment.',
