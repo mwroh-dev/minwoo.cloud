@@ -27,6 +27,8 @@
 - When changing routes or locale behavior, verify redirects, metadata, sitemap, and localized links together.
 - When changing `src/content`, treat frontmatter validity, translation pairing, and internal links as part of the code change.
 - Keep presentation logic in components and content/data shaping in `src/lib`.
+- Prefer flat, mechanically editable control flow over compact inline predicates.
+- When a branch depends on a lookup that passes an object argument, extract the lookup result or a named predicate into an adjacent `const` before the branch.
 - Follow concern-specific rule files instead of inventing local style decisions:
   - `docs/agent-rules/imports.md`
   - `docs/agent-rules/structure.md`

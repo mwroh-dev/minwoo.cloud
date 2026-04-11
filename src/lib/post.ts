@@ -108,10 +108,7 @@ export function buildPostFromSource({
 		href: `/${locale}/blog/${slug}`,
 		locale,
 		readingTimeMinutes: estimateReadingTime({ content, locale }),
-		series: getSeriesLabel({
-			series: parsed.data.series,
-			tags: parsed.data.tags,
-		}),
+		series: getSeriesLabel({ series: parsed.data.series, tags: parsed.data.tags }),
 		slug,
 		sourcePath,
 		tags: parsed.data.tags ?? [],
@@ -125,12 +122,7 @@ function parsePostFile({ filePath, locale }: { filePath: string; locale: Locale 
 	const fileContents = fs.readFileSync(filePath, 'utf8');
 	const slug = path.basename(filePath, '.mdx');
 
-	return buildPostFromSource({
-		fileContents,
-		locale,
-		slug,
-		sourcePath: filePath,
-	});
+	return buildPostFromSource({ fileContents, locale, slug, sourcePath: filePath });
 }
 
 function loadPosts({
@@ -186,11 +178,7 @@ export function getPostDocument({
 	locale: Locale;
 	slug: string;
 }) {
-	const post = getPostByLocaleAndSlug({
-		contentPath,
-		locale,
-		slug,
-	});
+	const post = getPostByLocaleAndSlug({ contentPath, locale, slug });
 	if (!post) {
 		return null;
 	}
@@ -198,10 +186,7 @@ export function getPostDocument({
 	const fileContents = fs.readFileSync(post.sourcePath, 'utf8');
 	const { content } = matter(fileContents);
 
-	return {
-		content,
-		post,
-	};
+	return { content, post };
 }
 
 export function getAlternatePosts({
@@ -229,10 +214,7 @@ export function getGroupedPosts(posts: IPost[]): IGroupedPosts[] {
 	}
 
 	return Array.from(groups.entries())
-		.map(([name, seriesPosts]) => ({
-			name,
-			posts: sortPosts(seriesPosts),
-		}))
+		.map(([name, seriesPosts]) => ({ name, posts: sortPosts(seriesPosts) }))
 		.sort(
 			(a, b) =>
 				new Date(b.posts[0]?.date ?? 0).getTime() - new Date(a.posts[0]?.date ?? 0).getTime(),

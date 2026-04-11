@@ -19,6 +19,9 @@
 
 - If a function argument or branch condition is complex, pull it into a named `const` that explains intent.
 - If `===` and `&&` appear together, add parentheses to make the intended grouping explicit.
+- Name lookup results as nouns such as `localizedPost` or `document`.
+- Name derived branch predicates by intent such as `isMissingLocalizedPost` instead of encoding the implementation detail of the lookup call.
+- Prefer `const localizedPost = getPostByLocaleAndSlug(...); if (!localizedPost) { ... }` over inline negated lookup calls inside branches.
 
 ## Raw strings
 

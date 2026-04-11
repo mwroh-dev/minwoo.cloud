@@ -34,10 +34,7 @@ type ContentIssue = {
 	file?: string;
 };
 
-type CollectedPost = {
-	content: string;
-	post: IPost;
-};
+type CollectedPost = { content: string; post: IPost };
 
 const issues: ContentIssue[] = [];
 
@@ -90,10 +87,7 @@ function collectPosts() {
 				continue;
 			}
 
-			posts.push({
-				content: fileContents,
-				post,
-			});
+			posts.push({ content: fileContents, post });
 		}
 	}
 
@@ -164,12 +158,8 @@ function validateInternalLinks(posts: CollectedPost[]) {
 			const localizedMatch = getLocalizedSlugMatch(linkPath);
 			if (localizedMatch) {
 				const [, locale, slug] = localizedMatch;
-				if (
-					!getPostByLocaleAndSlug({
-						locale: locale as Locale,
-						slug,
-					})
-				) {
+				const localizedPost = getPostByLocaleAndSlug({ locale: locale as Locale, slug });
+				if (!localizedPost) {
 					addIssue({
 						category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
 						code: CONTENT_ISSUE_CODE.BROKEN_LOCALIZED_BLOG_LINK,
@@ -183,11 +173,8 @@ function validateInternalLinks(posts: CollectedPost[]) {
 			const legacyMatch = linkPath.match(legacyRoutePattern);
 			if (legacyMatch) {
 				const [, slug] = legacyMatch;
-				if (
-					!getPostBySlug({
-						slug,
-					})
-				) {
+				const legacyPost = getPostBySlug({ slug });
+				if (!legacyPost) {
 					addIssue({
 						category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
 						code: CONTENT_ISSUE_CODE.BROKEN_LEGACY_BLOG_LINK,

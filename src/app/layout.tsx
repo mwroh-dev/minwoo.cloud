@@ -27,11 +27,7 @@ function GoogleAnalytics() {
 	return <NextGA gaId={gaId} />;
 }
 
-export default function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html
 			lang={DEFAULT_LOCALE}

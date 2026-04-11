@@ -29,19 +29,8 @@ export const buildMetadata = (input?: {
 			description,
 			url,
 			type: 'website',
-			images: [
-				{
-					url: thumbnail,
-					width: 1200,
-					height: 630,
-					alt: title,
-				},
-			],
+			images: [{ url: thumbnail, width: 1200, height: 630, alt: title }],
 		},
-		twitter: {
-			card: 'summary_large_image',
-			title,
-			description,
-		},
+		twitter: { card: 'summary_large_image', title, description },
 	};
 };

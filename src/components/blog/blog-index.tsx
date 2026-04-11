@@ -26,10 +26,7 @@ function ArchiveGroupSection({ group, locale }: { group: IGroupedPosts; locale: 
 				<div className="font-mono text-xs uppercase tracking-[0.22em] text-stone-500">
 					<div>{getPostDateLabel({ date: post.date, locale })}</div>
 					<div className="mt-2">
-						{getReadingTimeLabel({
-							locale,
-							minutes: post.readingTimeMinutes,
-						})}
+						{getReadingTimeLabel({ locale, minutes: post.readingTimeMinutes })}
 					</div>
 				</div>
 				<div className="space-y-2">
@@ -139,10 +136,7 @@ export default function BlogIndex({ locale, posts }: { locale: Locale; posts: IP
 							<div className="space-y-3">
 								<p className="text-sm text-stone-500">
 									{getPostDateLabel({ date: featuredPost.date, locale })} /{' '}
-									{getReadingTimeLabel({
-										locale,
-										minutes: featuredPost.readingTimeMinutes,
-									})}
+									{getReadingTimeLabel({ locale, minutes: featuredPost.readingTimeMinutes })}
 								</p>
 								<h2 className="max-w-2xl font-serif text-3xl leading-tight text-stone-950 sm:text-5xl">
 									{featuredPost.title}

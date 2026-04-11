@@ -1,7 +1,4 @@
-export const LOCALE_VALUES = {
-	ENGLISH: 'en',
-	KOREAN: 'ko',
-} as const;
+export const LOCALE_VALUES = { ENGLISH: 'en', KOREAN: 'ko' } as const;
 
 export type LocaleKey = keyof typeof LOCALE_VALUES;
 export type Locale = (typeof LOCALE_VALUES)[LocaleKey];
@@ -31,10 +28,7 @@ export const SITE_COPY = {
 			linkedinAriaLabel: 'LinkedIn',
 			title: 'Cielo.dev',
 		},
-		header: {
-			homeLabel: 'Home',
-			writingsLabel: 'Writings',
-		},
+		header: { homeLabel: 'Home', writingsLabel: 'Writings' },
 		home: {
 			ctaLabel: 'Read writings',
 			eyebrow: 'Developer notes for the AI era',
@@ -67,10 +61,7 @@ export const SITE_COPY = {
 			linkedinAriaLabel: '링크드인',
 			title: 'Cielo.dev',
 		},
-		header: {
-			homeLabel: '홈',
-			writingsLabel: '기록',
-		},
+		header: { homeLabel: '홈', writingsLabel: '기록' },
 		home: {
 			ctaLabel: '글 읽기',
 			eyebrow: 'AI 시대 개발자 노트',
@@ -105,10 +96,7 @@ export const SITE_COPY = {
 			linkedinAriaLabel: string;
 			title: string;
 		};
-		header: {
-			homeLabel: string;
-			writingsLabel: string;
-		};
+		header: { homeLabel: string; writingsLabel: string };
 		home: {
 			ctaLabel: string;
 			description: string;

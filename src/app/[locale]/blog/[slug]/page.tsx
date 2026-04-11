@@ -39,10 +39,7 @@ export async function generateMetadata({
 	if (!isLocale(locale)) {
 		notFound();
 	}
-	const document = getPostDocument({
-		locale,
-		slug: decodeURIComponent(slug),
-	});
+	const document = getPostDocument({ locale, slug: decodeURIComponent(slug) });
 	if (!document) {
 		notFound();
 	}
@@ -51,18 +48,12 @@ export async function generateMetadata({
 		description: document.post.description,
 		thumbnail: document.post.thumbnail,
 		title: `${document.post.title} | Minwoo Roh`,
-		url: getCanonicalUrl({
-			locale,
-			slug: document.post.slug,
-		}),
+		url: getCanonicalUrl({ locale, slug: document.post.slug }),
 	});
 }
 
 export async function generateStaticParams() {
-	return getAllPosts().map((post) => ({
-		locale: post.locale,
-		slug: post.slug,
-	}));
+	return getAllPosts().map((post) => ({ locale: post.locale, slug: post.slug }));
 }
 
 function useMDXComponents(components: MDXComponents = {}): MDXComponents {
@@ -93,10 +84,7 @@ export default async function LocalizedBlogPostPage({
 	if (!isLocale(locale)) {
 		notFound();
 	}
-	const document = getPostDocument({
-		locale,
-		slug: decodeURIComponent(slug),
-	});
+	const document = getPostDocument({ locale, slug: decodeURIComponent(slug) });
 	if (!document) {
 		notFound();
 	}
@@ -146,12 +134,7 @@ export default async function LocalizedBlogPostPage({
 					</h1>
 					<div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-stone-500">
 						<span>{getPostDateLabel({ date: post.date, locale })}</span>
-						<span>
-							{getReadingTimeLabel({
-								locale,
-								minutes: post.readingTimeMinutes,
-							})}
-						</span>
+						<span>{getReadingTimeLabel({ locale, minutes: post.readingTimeMinutes })}</span>
 						<span>{LOCALE_LABEL[locale]}</span>
 					</div>
 					<div className="mt-5">
