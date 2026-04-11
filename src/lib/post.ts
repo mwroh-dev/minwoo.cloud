@@ -20,19 +20,24 @@ export const PostFrontmatterSchema = z.object({
 	translationKey: z.string().optional(),
 });
 
-type BuildPostInput = {
-	fileContents: string;
+function getLocaleDirectory({
+	contentPath = CONTENT_PATH,
+	locale,
+}: {
+	contentPath?: string;
 	locale: Locale;
-	slug: string;
-	sourcePath: string;
-};
-
-function getLocaleDirectory(locale: Locale, contentPath = CONTENT_PATH) {
+}) {
 	return path.join(contentPath, locale);
 }
 
-function getLocalePostPaths(locale: Locale, contentPath = CONTENT_PATH) {
-	const directory = getLocaleDirectory(locale, contentPath);
+function getLocalePostPaths({
+	contentPath = CONTENT_PATH,
+	locale,
+}: {
+	contentPath?: string;
+	locale: Locale;
+}) {
+	const directory = getLocaleDirectory({ contentPath, locale });
 	if (!fs.existsSync(directory)) {
 		return [];
 	}
@@ -43,7 +48,7 @@ function getLocalePostPaths(locale: Locale, contentPath = CONTENT_PATH) {
 		.map((file) => path.join(directory, file));
 }
 
-function estimateReadingTime(content: string, locale: Locale) {
+function estimateReadingTime({ content, locale }: { content: string; locale: Locale }) {
 	const words = content.trim().split(/\s+/).filter(Boolean).length;
 	const wordsPerMinute = locale === 'ko' ? 260 : 220;
 
@@ -54,7 +59,13 @@ function sortPosts(posts: IPost[]) {
 	return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-function getSeriesLabel(series: string | undefined, tags: string[] | undefined) {
+function getSeriesLabel({
+	series,
+	tags,
+}: {
+	series: string | undefined;
+	tags: string[] | undefined;
+}) {
 	if (series?.trim()) {
 		return series;
 	}
@@ -67,7 +78,12 @@ export function buildPostFromSource({
 	locale,
 	slug,
 	sourcePath,
-}: BuildPostInput): IPost | null {
+}: {
+	fileContents: string;
+	locale: Locale;
+	slug: string;
+	sourcePath: string;
+}): IPost | null {
 	const { content, data } = matter(fileContents);
 	const parsed = PostFrontmatterSchema.safeParse({
 		date: data.date,
@@ -91,8 +107,11 @@ export function buildPostFromSource({
 		featured: parsed.data.featured ?? false,
 		href: `/${locale}/blog/${slug}`,
 		locale,
-		readingTimeMinutes: estimateReadingTime(content, locale),
-		series: getSeriesLabel(parsed.data.series, parsed.data.tags),
+		readingTimeMinutes: estimateReadingTime({ content, locale }),
+		series: getSeriesLabel({
+			series: parsed.data.series,
+			tags: parsed.data.tags,
+		}),
 		slug,
 		sourcePath,
 		tags: parsed.data.tags ?? [],
@@ -102,7 +121,7 @@ export function buildPostFromSource({
 	};
 }
 
-function parsePostFile(filePath: string, locale: Locale): IPost | null {
+function parsePostFile({ filePath, locale }: { filePath: string; locale: Locale }): IPost | null {
 	const fileContents = fs.readFileSync(filePath, 'utf8');
 	const slug = path.basename(filePath, '.mdx');
 
@@ -114,32 +133,64 @@ function parsePostFile(filePath: string, locale: Locale): IPost | null {
 	});
 }
 
-function loadPosts(locale: Locale, contentPath = CONTENT_PATH) {
+function loadPosts({
+	contentPath = CONTENT_PATH,
+	locale,
+}: {
+	contentPath?: string;
+	locale: Locale;
+}) {
 	return sortPosts(
-		getLocalePostPaths(locale, contentPath)
-			.map((filePath) => parsePostFile(filePath, locale))
+		getLocalePostPaths({ contentPath, locale })
+			.map((filePath) => parsePostFile({ filePath, locale }))
 			.filter((post): post is IPost => post !== null),
 	);
 }
 
 export function getAllPosts(contentPath = CONTENT_PATH) {
-	return sortPosts(LOCALES.flatMap((locale) => loadPosts(locale, contentPath)));
+	return sortPosts(LOCALES.flatMap((locale) => loadPosts({ contentPath, locale })));
 }
 
 export function getPostsByLocale(locale: Locale, contentPath = CONTENT_PATH) {
-	return loadPosts(locale, contentPath);
+	return loadPosts({ contentPath, locale });
 }
 
-export function getPostByLocaleAndSlug(locale: Locale, slug: string, contentPath = CONTENT_PATH) {
-	return loadPosts(locale, contentPath).find((post) => post.slug === slug) ?? null;
+export function getPostByLocaleAndSlug({
+	contentPath = CONTENT_PATH,
+	locale,
+	slug,
+}: {
+	contentPath?: string;
+	locale: Locale;
+	slug: string;
+}) {
+	return loadPosts({ contentPath, locale }).find((post) => post.slug === slug) ?? null;
 }
 
-export function getPostBySlug(slug: string, contentPath = CONTENT_PATH) {
+export function getPostBySlug({
+	contentPath = CONTENT_PATH,
+	slug,
+}: {
+	contentPath?: string;
+	slug: string;
+}) {
 	return getAllPosts(contentPath).find((post) => post.slug === slug) ?? null;
 }
 
-export function getPostDocument(locale: Locale, slug: string, contentPath = CONTENT_PATH) {
-	const post = getPostByLocaleAndSlug(locale, slug, contentPath);
+export function getPostDocument({
+	contentPath = CONTENT_PATH,
+	locale,
+	slug,
+}: {
+	contentPath?: string;
+	locale: Locale;
+	slug: string;
+}) {
+	const post = getPostByLocaleAndSlug({
+		contentPath,
+		locale,
+		slug,
+	});
 	if (!post) {
 		return null;
 	}
@@ -153,7 +204,13 @@ export function getPostDocument(locale: Locale, slug: string, contentPath = CONT
 	};
 }
 
-export function getAlternatePosts(post: IPost, contentPath = CONTENT_PATH) {
+export function getAlternatePosts({
+	contentPath = CONTENT_PATH,
+	post,
+}: {
+	contentPath?: string;
+	post: IPost;
+}) {
 	return getAllPosts(contentPath).filter(
 		(candidate) =>
 			candidate.translationKey === post.translationKey && candidate.locale !== post.locale,

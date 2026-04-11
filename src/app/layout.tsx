@@ -5,6 +5,7 @@ import { Geist, Geist_Mono, Newsreader } from 'next/font/google';
 
 import Footer from '@/components/footer';
 import Header from '@/components/header';
+import { DEFAULT_LOCALE } from '@/lib/i18n';
 import { buildMetadata } from '@/lib/metadata';
 import { GoogleAnalytics as NextGA } from '@next/third-parties/google';
 
@@ -33,7 +34,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html
-			lang="en"
+			lang={DEFAULT_LOCALE}
 			className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable}`}
 			suppressHydrationWarning
 		>

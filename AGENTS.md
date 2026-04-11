@@ -4,7 +4,7 @@
 
 - This repository is a bilingual editorial site built with Next.js App Router and MDX content.
 - Read `spec.md` first for the currently active feature. Follow any linked detailed spec in `specs/` before editing repo-tracked files.
-- When touching `src/app` or `src/components`, also read the relevant files in `docs/agent-rules/`.
+- When touching `src/app`, `src/components`, `src/lib`, or `scripts`, also read the relevant files in `docs/agent-rules/`.
 
 ## Architecture Overview
 
@@ -33,6 +33,7 @@
   - `docs/agent-rules/rendering.md`
   - `docs/agent-rules/naming.md`
   - `docs/agent-rules/i18n.md`
+  - `docs/agent-rules/validation.md`
 
 ## Definition of Done
 

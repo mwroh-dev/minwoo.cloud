@@ -25,7 +25,7 @@ import {
 import { buildMetadata } from '@/lib/metadata';
 import { BLOG_URL, getAllPosts, getAlternatePosts, getPostDocument } from '@/lib/post';
 
-function getCanonicalUrl(locale: Locale, slug: string) {
+function getCanonicalUrl({ locale, slug }: { locale: Locale; slug: string }) {
 	return `${BLOG_URL}/${locale}/blog/${slug}`;
 }
 
@@ -39,7 +39,10 @@ export async function generateMetadata({
 	if (!isLocale(locale)) {
 		notFound();
 	}
-	const document = getPostDocument(locale, decodeURIComponent(slug));
+	const document = getPostDocument({
+		locale,
+		slug: decodeURIComponent(slug),
+	});
 	if (!document) {
 		notFound();
 	}
@@ -48,7 +51,10 @@ export async function generateMetadata({
 		description: document.post.description,
 		thumbnail: document.post.thumbnail,
 		title: `${document.post.title} | Minwoo Roh`,
-		url: getCanonicalUrl(locale, document.post.slug),
+		url: getCanonicalUrl({
+			locale,
+			slug: document.post.slug,
+		}),
 	});
 }
 
@@ -87,14 +93,17 @@ export default async function LocalizedBlogPostPage({
 	if (!isLocale(locale)) {
 		notFound();
 	}
-	const document = getPostDocument(locale, decodeURIComponent(slug));
+	const document = getPostDocument({
+		locale,
+		slug: decodeURIComponent(slug),
+	});
 	if (!document) {
 		notFound();
 	}
 
 	const { content, post } = document;
 	const copy = BLOG_COPY[locale];
-	const alternates = getAlternatePosts(post);
+	const alternates = getAlternatePosts({ post });
 	const alternateMap = new Map(alternates.map((alternate) => [alternate.locale, alternate]));
 	const translationToggleItems = LOCALES.map((candidateLocale) => ({
 		href: alternateMap.get(candidateLocale)?.href,
@@ -136,8 +145,13 @@ export default async function LocalizedBlogPostPage({
 						{post.title}
 					</h1>
 					<div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-stone-500">
-						<span>{getPostDateLabel(post.date, locale)}</span>
-						<span>{getReadingTimeLabel(post.readingTimeMinutes, locale)}</span>
+						<span>{getPostDateLabel({ date: post.date, locale })}</span>
+						<span>
+							{getReadingTimeLabel({
+								locale,
+								minutes: post.readingTimeMinutes,
+							})}
+						</span>
 						<span>{LOCALE_LABEL[locale]}</span>
 					</div>
 					<div className="mt-5">

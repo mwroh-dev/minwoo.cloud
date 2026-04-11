@@ -1,23 +1,135 @@
-export const LOCALES = ['en', 'ko'] as const;
+export const LOCALE_VALUES = {
+	ENGLISH: 'en',
+	KOREAN: 'ko',
+} as const;
 
-export type Locale = (typeof LOCALES)[number];
+export type LocaleKey = keyof typeof LOCALE_VALUES;
+export type Locale = (typeof LOCALE_VALUES)[LocaleKey];
 
-export const DEFAULT_LOCALE: Locale = 'ko';
-export const ENGLISH_LOCALE: Locale = 'en';
-export const KOREAN_LOCALE: Locale = 'ko';
+export const ENGLISH_LOCALE = LOCALE_VALUES.ENGLISH;
+export const KOREAN_LOCALE = LOCALE_VALUES.KOREAN;
+export const DEFAULT_LOCALE = LOCALE_VALUES.KOREAN;
+export const LOCALES = Object.values(LOCALE_VALUES) as Locale[];
 
 export const LOCALE_LABEL: Record<Locale, string> = {
-	en: 'English',
-	ko: '한국어',
+	[ENGLISH_LOCALE]: 'English',
+	[KOREAN_LOCALE]: '한국어',
 };
 
 export const LOCALE_CODE_LABEL: Record<Locale, string> = {
-	en: 'EN',
-	ko: 'KO',
+	[ENGLISH_LOCALE]: 'EN',
+	[KOREAN_LOCALE]: 'KO',
 };
 
+export const SITE_COPY = {
+	[ENGLISH_LOCALE]: {
+		footer: {
+			copyright: 'Copyright © 2026 Minwoo Roh',
+			description:
+				'Editorial notes on software craft, career durability, and building with AI-native tools.',
+			githubAriaLabel: 'GitHub',
+			linkedinAriaLabel: 'LinkedIn',
+			title: 'Cielo.dev',
+		},
+		header: {
+			homeLabel: 'Home',
+			writingsLabel: 'Writings',
+		},
+		home: {
+			ctaLabel: 'Read writings',
+			eyebrow: 'Developer notes for the AI era',
+			previewLabel: 'Preview latest note',
+			questionEyebrow: 'Questions that keep coming back',
+			questionItems: [
+				'How far should a desired result be decomposed before an agent stops drifting?',
+				'Which conditions and boundaries decide implementation quality before code is written?',
+				'How can individual clarity reduce team bottlenecks?',
+			],
+			questionTitle: 'Can individual clarity really become team trust and fewer bottlenecks?',
+			title: 'I keep thinking about what developers need to get better at in the age of AI agents.',
+			description:
+				'I think developer leverage is shifting away from typing speed and toward problem framing, task decomposition, specs, and making outcomes explainable. This home is where I keep notes on how clearer thinking can shape better collaboration.',
+		},
+		metadata: {
+			baseDescription:
+				'Editorial notes on software craft, AI-native workflows, and how developers stay useful as agents get stronger.',
+			baseTitle: 'Minwoo Roh | AI-Era Developer Notes',
+			blogDescription:
+				'A bilingual editorial blog about problem framing, task decomposition, and clearer developer workflows in the age of AI agents.',
+			blogTitle: 'Minwoo Roh | Writings',
+		},
+	},
+	[KOREAN_LOCALE]: {
+		footer: {
+			copyright: 'Copyright © 2026 Minwoo Roh',
+			description: '문제 정의와 협업, 그리고 AI 시대의 개발 작업 방식을 기록합니다.',
+			githubAriaLabel: '깃허브',
+			linkedinAriaLabel: '링크드인',
+			title: 'Cielo.dev',
+		},
+		header: {
+			homeLabel: '홈',
+			writingsLabel: '기록',
+		},
+		home: {
+			ctaLabel: '글 읽기',
+			eyebrow: 'AI 시대 개발자 노트',
+			previewLabel: '최신 글 미리 보기',
+			questionEyebrow: '요즘 자주 돌아오는 질문',
+			questionItems: [
+				'원하는 결과를 어디까지 쪼개야 에이전트가 헛돌지 않는가.',
+				'좋은 구현은 코드보다 먼저 어떤 조건과 범위에서 결정되는가.',
+				'개인의 명확함은 어떻게 팀의 병목 감소로 이어지는가.',
+			],
+			questionTitle: '개인의 명확함은 결국 팀의 신뢰와 병목 감소로 이어질 수 있을까.',
+			title:
+				'에이전트가 코드를 쓰는 시대에, 개발자는 무엇을 더 잘해야 하는지 계속 생각하고 있습니다.',
+			description:
+				'저는 요즘 개발자의 경쟁력이 구현 속도보다 문제 정의, 작업 분해, 명세, 그리고 결과를 설명 가능한 형태로 만드는 데서 갈린다고 생각합니다. 이곳에는 개인의 사고를 더 또렷하게 만들고, 그 또렷함이 팀의 병목을 어떻게 줄일 수 있는지에 대한 기록을 남기고 있습니다.',
+		},
+		metadata: {
+			baseDescription: '문제 정의, 작업 분해, 명세, 그리고 AI 시대의 개발 협업 방식에 대한 기록.',
+			baseTitle: 'Minwoo Roh | AI 시대 개발자 노트',
+			blogDescription:
+				'문제 정의, 작업 분해, 명세, 그리고 개인의 명확함이 팀의 병목을 어떻게 줄이는지에 대한 기록.',
+			blogTitle: 'Minwoo Roh | Writings',
+		},
+	},
+} satisfies Record<
+	Locale,
+	{
+		footer: {
+			copyright: string;
+			description: string;
+			githubAriaLabel: string;
+			linkedinAriaLabel: string;
+			title: string;
+		};
+		header: {
+			homeLabel: string;
+			writingsLabel: string;
+		};
+		home: {
+			ctaLabel: string;
+			description: string;
+			eyebrow: string;
+			previewLabel: string;
+			questionEyebrow: string;
+			questionItems: string[];
+			questionTitle: string;
+			title: string;
+		};
+		metadata: {
+			baseDescription: string;
+			baseTitle: string;
+			blogDescription: string;
+			blogTitle: string;
+		};
+	}
+>;
+
 export const BLOG_COPY = {
-	en: {
+	[ENGLISH_LOCALE]: {
 		backToIndex: 'Back to archive',
 		description:
 			'I have been thinking a lot about how developer leverage is shifting away from typing speed and toward problem framing, task decomposition, specs, verification, and making outcomes explainable. This archive is where I keep notes on how individual clarity can turn into team trust and fewer bottlenecks.',
@@ -49,7 +161,7 @@ export const BLOG_COPY = {
 		title: 'Notes from trying to break problems into clearer tasks and conditions.',
 		translateLabel: 'Translate',
 	},
-	ko: {
+	[KOREAN_LOCALE]: {
 		backToIndex: '목록으로 돌아가기',
 		description:
 			'저는 요즘 개발자의 경쟁력이 구현 속도보다 문제 정의, 작업 분해, 명세, 검증, 그리고 결과를 설명 가능한 상태로 만드는 데서 갈린다고 생각합니다. 이곳에는 개인의 명확함이 어떻게 팀의 신뢰와 병목 감소로 이어지는지에 대한 기록을 남기고 있습니다.',
@@ -84,6 +196,7 @@ export const BLOG_COPY = {
 } satisfies Record<
 	Locale,
 	{
+		backToIndex: string;
 		description: string;
 		emptyDescription: string;
 		emptyTitle: string;
@@ -105,7 +218,6 @@ export const BLOG_COPY = {
 		switchLabel: string;
 		title: string;
 		translateLabel: string;
-		backToIndex: string;
 	}
 >;
 
@@ -113,27 +225,27 @@ export function isLocale(value: string): value is Locale {
 	return LOCALES.includes(value as Locale);
 }
 
-export function getPostDateLabel(date: string, locale: Locale) {
-	return new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', {
+export function getPostDateLabel({ date, locale }: { date: string; locale: Locale }) {
+	return new Intl.DateTimeFormat(locale === KOREAN_LOCALE ? 'ko-KR' : 'en-US', {
 		day: 'numeric',
 		month: 'short',
 		year: 'numeric',
 	}).format(new Date(`${date}T00:00:00`));
 }
 
-export function getReadingTimeLabel(minutes: number, locale: Locale) {
-	return locale === 'ko' ? `${minutes}분 읽기` : `${minutes} min read`;
+export function getReadingTimeLabel({ locale, minutes }: { locale: Locale; minutes: number }) {
+	return locale === KOREAN_LOCALE ? `${minutes}분 읽기` : `${minutes} min read`;
 }
 
 export function getAlternateLocale(locale: Locale): Locale {
-	return locale === 'en' ? 'ko' : 'en';
+	return locale === ENGLISH_LOCALE ? KOREAN_LOCALE : ENGLISH_LOCALE;
 }
 
 export function getLocaleBlogPath(locale: Locale) {
 	return locale === DEFAULT_LOCALE ? '/blog' : `/${locale}/blog`;
 }
 
-export function getLocalizedBlogPostPath(locale: Locale, slug: string) {
+export function getLocalizedBlogPostPath({ locale, slug }: { locale: Locale; slug: string }) {
 	const archivePath = getLocaleBlogPath(locale);
 
 	return `${archivePath}/${slug}`;

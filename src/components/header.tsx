@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { getLocaleBlogPath, DEFAULT_LOCALE } from '@/lib/i18n';
+import { DEFAULT_LOCALE, getLocaleBlogPath, SITE_COPY } from '@/lib/i18n';
 import { HOME_PATH } from '@/lib/site';
 
 const MenuLink = ({ href, pathname, title }: { href: string; pathname: string; title: string }) => {
@@ -35,6 +35,7 @@ const MenuLink = ({ href, pathname, title }: { href: string; pathname: string; t
 
 function Header() {
 	const pathname = usePathname();
+	const defaultHeaderCopy = SITE_COPY[DEFAULT_LOCALE].header;
 
 	return (
 		<header
@@ -47,8 +48,12 @@ function Header() {
 					Minwoo Roh
 				</Link>
 				<ul className="flex justify-start space-x-6">
-					<MenuLink title="Home" href={HOME_PATH} pathname={pathname} />
-					<MenuLink title="Writings" href={getLocaleBlogPath(DEFAULT_LOCALE)} pathname={pathname} />
+					<MenuLink title={defaultHeaderCopy.homeLabel} href={HOME_PATH} pathname={pathname} />
+					<MenuLink
+						title={defaultHeaderCopy.writingsLabel}
+						href={getLocaleBlogPath(DEFAULT_LOCALE)}
+						pathname={pathname}
+					/>
 				</ul>
 			</nav>
 		</header>

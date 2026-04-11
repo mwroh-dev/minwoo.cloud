@@ -4,6 +4,12 @@
 
 - Applies to `src/lib/**`.
 
+## Required rule files
+
+- `docs/agent-rules/imports.md`
+- `docs/agent-rules/naming.md`
+- `docs/agent-rules/validation.md`
+
 ## Data Rules
 
 - Prefer schema-first changes before updating UI or content.

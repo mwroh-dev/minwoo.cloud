@@ -8,7 +8,7 @@ export default async function LegacyBlogPostPage({
 	params: Promise<{ slug: string }>;
 }) {
 	const { slug } = await params;
-	const post = getPostBySlug(decodeURIComponent(slug));
+	const post = getPostBySlug({ slug: decodeURIComponent(slug) });
 
 	if (!post) {
 		notFound();

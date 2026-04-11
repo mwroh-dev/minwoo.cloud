@@ -7,16 +7,22 @@ type LanguageToggleItem = {
 	label: string;
 };
 
+const TOGGLE_ITEM_BASE_CLASS_NAME =
+	'inline-flex min-w-12 items-center justify-center rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.24em] transition-all duration-200';
+const TOGGLE_ITEM_ACTIVE_CLASS_NAME = `${TOGGLE_ITEM_BASE_CLASS_NAME} bg-stone-950 text-stone-50`;
+const TOGGLE_ITEM_DISABLED_CLASS_NAME = `${TOGGLE_ITEM_BASE_CLASS_NAME} text-stone-300`;
+const TOGGLE_ITEM_IDLE_CLASS_NAME = `${TOGGLE_ITEM_BASE_CLASS_NAME} text-stone-600 hover:bg-stone-100 hover:text-stone-950`;
+
 function getToggleItemClassName(item: LanguageToggleItem) {
 	if (item.isActive) {
-		return 'inline-flex min-w-12 items-center justify-center rounded-full bg-stone-950 px-3 py-1.5 text-[11px] uppercase tracking-[0.24em] text-stone-50 transition-all duration-200';
+		return TOGGLE_ITEM_ACTIVE_CLASS_NAME;
 	}
 
 	if (item.isDisabled) {
-		return 'inline-flex min-w-12 items-center justify-center rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.24em] text-stone-300 transition-all duration-200';
+		return TOGGLE_ITEM_DISABLED_CLASS_NAME;
 	}
 
-	return 'inline-flex min-w-12 items-center justify-center rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.24em] text-stone-600 transition-all duration-200 hover:bg-stone-100 hover:text-stone-950';
+	return TOGGLE_ITEM_IDLE_CLASS_NAME;
 }
 
 export default function LanguageToggle({

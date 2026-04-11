@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { LOCALES } from '@/lib/i18n';
+import { LOCALES, LOCALE_VALUES, type Locale } from '@/lib/i18n';
 import {
 	CONTENT_PATH,
 	buildPostFromSource,
@@ -9,29 +9,57 @@ import {
 	getPostByLocaleAndSlug,
 	getPostBySlug,
 } from '@/lib/post';
+import { IPost } from '@/types/post';
 
-type Issue = {
+const CONTENT_ISSUE_CATEGORY = {
+	LOGICAL_ERROR: 'LOGICAL_ERROR',
+	PHYSICAL_ERROR: 'PHYSICAL_ERROR',
+} as const;
+
+const CONTENT_ISSUE_CODE = {
+	BROKEN_LEGACY_BLOG_LINK: 'BROKEN_LEGACY_BLOG_LINK',
+	BROKEN_LOCALIZED_BLOG_LINK: 'BROKEN_LOCALIZED_BLOG_LINK',
+	DUPLICATE_SLUG: 'DUPLICATE_SLUG',
+	DUPLICATE_TRANSLATION_KEY: 'DUPLICATE_TRANSLATION_KEY',
+	GLOBAL_SLUG_UNIQUENESS_CHECK_FAILED: 'GLOBAL_SLUG_UNIQUENESS_CHECK_FAILED',
+	INVALID_FRONTMATTER: 'INVALID_FRONTMATTER',
+	MISSING_LOCALE_DIRECTORY: 'MISSING_LOCALE_DIRECTORY',
+	MISSING_PUBLIC_ASSET: 'MISSING_PUBLIC_ASSET',
+} as const;
+
+type ContentIssue = {
+	category: (typeof CONTENT_ISSUE_CATEGORY)[keyof typeof CONTENT_ISSUE_CATEGORY];
+	code: (typeof CONTENT_ISSUE_CODE)[keyof typeof CONTENT_ISSUE_CODE];
+	detail?: string;
 	file?: string;
-	message: string;
 };
 
-const issues: Issue[] = [];
+type CollectedPost = {
+	content: string;
+	post: IPost;
+};
 
-function addIssue(message: string, file?: string) {
-	issues.push({ file, message });
+const issues: ContentIssue[] = [];
+
+function addIssue(input: ContentIssue) {
+	issues.push(input);
 }
 
 function validateLocaleDirectories() {
 	for (const locale of LOCALES) {
 		const localeDirectory = path.join(CONTENT_PATH, locale);
 		if (!fs.existsSync(localeDirectory)) {
-			addIssue(`Missing locale directory: ${localeDirectory}`);
+			addIssue({
+				category: CONTENT_ISSUE_CATEGORY.PHYSICAL_ERROR,
+				code: CONTENT_ISSUE_CODE.MISSING_LOCALE_DIRECTORY,
+				detail: localeDirectory,
+			});
 		}
 	}
 }
 
 function collectPosts() {
-	const posts = [];
+	const posts: CollectedPost[] = [];
 
 	for (const locale of LOCALES) {
 		const localeDirectory = path.join(CONTENT_PATH, locale);
@@ -54,7 +82,11 @@ function collectPosts() {
 			});
 
 			if (!post) {
-				addIssue('Invalid frontmatter or unsupported metadata shape.', sourcePath);
+				addIssue({
+					category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
+					code: CONTENT_ISSUE_CODE.INVALID_FRONTMATTER,
+					file: sourcePath,
+				});
 				continue;
 			}
 
@@ -68,44 +100,56 @@ function collectPosts() {
 	return posts;
 }
 
-function validateUniqueness(posts: ReturnType<typeof collectPosts>) {
+function validateUniqueness(posts: CollectedPost[]) {
 	const slugMap = new Map<string, string>();
 	const translationKeyMap = new Map<string, string>();
 
 	for (const { post } of posts) {
 		const existingSlug = slugMap.get(post.slug);
 		if (existingSlug) {
-			addIssue(
-				`Duplicate slug "${post.slug}" detected. Legacy /blog/[slug] redirects require globally unique slugs.`,
-				post.sourcePath,
-			);
+			addIssue({
+				category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
+				code: CONTENT_ISSUE_CODE.DUPLICATE_SLUG,
+				detail: post.slug,
+				file: post.sourcePath,
+			});
 		} else {
 			slugMap.set(post.slug, post.sourcePath);
 		}
 
-		const translationKey = `${post.locale}:${post.translationKey}`;
-		const existingTranslation = translationKeyMap.get(translationKey);
+		const localizedTranslationKey = `${post.locale}:${post.translationKey}`;
+		const existingTranslation = translationKeyMap.get(localizedTranslationKey);
 		if (existingTranslation) {
-			addIssue(
-				`Duplicate translationKey "${post.translationKey}" detected for locale "${post.locale}".`,
-				post.sourcePath,
-			);
+			addIssue({
+				category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
+				code: CONTENT_ISSUE_CODE.DUPLICATE_TRANSLATION_KEY,
+				detail: localizedTranslationKey,
+				file: post.sourcePath,
+			});
 		} else {
-			translationKeyMap.set(translationKey, post.sourcePath);
+			translationKeyMap.set(localizedTranslationKey, post.sourcePath);
 		}
 	}
 }
 
 function isKnownInternalRoute(linkPath: string) {
 	return (
-		linkPath === '/' || linkPath === '/blog' || linkPath === '/en/blog' || linkPath === '/ko/blog'
+		linkPath === '/' ||
+		linkPath === '/blog' ||
+		linkPath === `/${LOCALE_VALUES.ENGLISH}/blog` ||
+		linkPath === `/${LOCALE_VALUES.KOREAN}/blog`
 	);
 }
 
-function validateInternalLinks(posts: ReturnType<typeof collectPosts>) {
+function getLocalizedSlugMatch(linkPath: string) {
+	const localizedRoutePattern = new RegExp(`^\\/(${LOCALES.join('|')})\\/blog\\/([^/?#]+)$`);
+
+	return linkPath.match(localizedRoutePattern);
+}
+
+function validateInternalLinks(posts: CollectedPost[]) {
 	const allPosts = getAllPosts();
 	const assetRoot = path.join(process.cwd(), 'public');
-	const localizedRoutePattern = /^\/(en|ko)\/blog\/([^/?#]+)$/;
 	const legacyRoutePattern = /^\/blog\/([^/?#]+)$/;
 	const linkPattern = /\[[^\]]+\]\((\/[^)\s?#]+)(?:[?#][^)]+)?\)/g;
 
@@ -117,11 +161,21 @@ function validateInternalLinks(posts: ReturnType<typeof collectPosts>) {
 				continue;
 			}
 
-			const localizedMatch = linkPath.match(localizedRoutePattern);
+			const localizedMatch = getLocalizedSlugMatch(linkPath);
 			if (localizedMatch) {
 				const [, locale, slug] = localizedMatch;
-				if (!getPostByLocaleAndSlug(locale as (typeof LOCALES)[number], slug)) {
-					addIssue(`Broken localized blog link: ${linkPath}`, post.sourcePath);
+				if (
+					!getPostByLocaleAndSlug({
+						locale: locale as Locale,
+						slug,
+					})
+				) {
+					addIssue({
+						category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
+						code: CONTENT_ISSUE_CODE.BROKEN_LOCALIZED_BLOG_LINK,
+						detail: linkPath,
+						file: post.sourcePath,
+					});
 				}
 				continue;
 			}
@@ -129,27 +183,56 @@ function validateInternalLinks(posts: ReturnType<typeof collectPosts>) {
 			const legacyMatch = linkPath.match(legacyRoutePattern);
 			if (legacyMatch) {
 				const [, slug] = legacyMatch;
-				if (!getPostBySlug(slug)) {
-					addIssue(`Broken legacy blog link: ${linkPath}`, post.sourcePath);
+				if (
+					!getPostBySlug({
+						slug,
+					})
+				) {
+					addIssue({
+						category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
+						code: CONTENT_ISSUE_CODE.BROKEN_LEGACY_BLOG_LINK,
+						detail: linkPath,
+						file: post.sourcePath,
+					});
 				}
 				continue;
 			}
 
 			const publicAssetPath = path.join(assetRoot, linkPath.replace(/^\//, ''));
 			if (!fs.existsSync(publicAssetPath)) {
-				addIssue(`Unknown internal link or missing public asset: ${linkPath}`, post.sourcePath);
+				addIssue({
+					category: CONTENT_ISSUE_CATEGORY.PHYSICAL_ERROR,
+					code: CONTENT_ISSUE_CODE.MISSING_PUBLIC_ASSET,
+					detail: linkPath,
+					file: post.sourcePath,
+				});
 			}
 		}
 	}
 
 	const slugsInContent = new Set(allPosts.map((post) => post.slug));
 	if (slugsInContent.size !== allPosts.length) {
-		addIssue('Global slug uniqueness check failed.');
+		addIssue({
+			category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
+			code: CONTENT_ISSUE_CODE.GLOBAL_SLUG_UNIQUENESS_CHECK_FAILED,
+		});
 	}
+}
+
+function formatIssue(issue: ContentIssue) {
+	const issueHeader = `[${issue.category}:${issue.code}]`;
+	const issueDetail = issue.detail ? ` ${issue.detail}` : '';
+
+	if (issue.file) {
+		return `${issueHeader}${issueDetail}\n  ${issue.file}`;
+	}
+
+	return `${issueHeader}${issueDetail}`;
 }
 
 function main() {
 	validateLocaleDirectories();
+
 	const posts = collectPosts();
 	validateUniqueness(posts);
 	validateInternalLinks(posts);
@@ -157,11 +240,7 @@ function main() {
 	if (issues.length > 0) {
 		console.error('\nContent validation failed.\n');
 		for (const issue of issues) {
-			if (issue.file) {
-				console.error(`- ${issue.message}\n  ${issue.file}`);
-			} else {
-				console.error(`- ${issue.message}`);
-			}
+			console.error(`- ${formatIssue(issue)}`);
 		}
 		process.exit(1);
 	}

@@ -177,7 +177,10 @@ describe('post loaders', () => {
 		});
 
 		const koreanPost = getPostsByLocale('ko', root)[0];
-		const alternates = getAlternatePosts(koreanPost, root);
+		const alternates = getAlternatePosts({
+			contentPath: root,
+			post: koreanPost,
+		});
 
 		expect(alternates).toHaveLength(1);
 		expect(alternates[0]?.locale).toBe('en');

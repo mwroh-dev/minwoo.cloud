@@ -11,6 +11,7 @@
 - `docs/agent-rules/rendering.md`
 - `docs/agent-rules/naming.md`
 - `docs/agent-rules/i18n.md`
+- `docs/agent-rules/validation.md`
 
 ## Route Rules
 

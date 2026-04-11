@@ -24,8 +24,13 @@ function ArchiveGroupSection({ group, locale }: { group: IGroupedPosts; locale: 
 				className="group grid gap-4 rounded-2xl px-4 py-4 transition-all duration-200 hover:translate-x-1 hover:bg-white/65 sm:grid-cols-[170px_1fr_auto]"
 			>
 				<div className="font-mono text-xs uppercase tracking-[0.22em] text-stone-500">
-					<div>{getPostDateLabel(post.date, locale)}</div>
-					<div className="mt-2">{getReadingTimeLabel(post.readingTimeMinutes, locale)}</div>
+					<div>{getPostDateLabel({ date: post.date, locale })}</div>
+					<div className="mt-2">
+						{getReadingTimeLabel({
+							locale,
+							minutes: post.readingTimeMinutes,
+						})}
+					</div>
 				</div>
 				<div className="space-y-2">
 					<p className="font-serif text-2xl leading-tight text-stone-950">{post.title}</p>
@@ -54,15 +59,34 @@ function EmptyArchiveState({ message }: { message: string }) {
 	);
 }
 
+function renderArchiveContent({
+	locale,
+	message,
+	posts,
+}: {
+	locale: Locale;
+	message: string;
+	posts: IPost[];
+}) {
+	const archiveGroupSections = getGroupedPosts(posts).map((group) => (
+		<ArchiveGroupSection key={group.name} group={group} locale={locale} />
+	));
+
+	if (archiveGroupSections.length > 0) {
+		return archiveGroupSections;
+	}
+
+	return <EmptyArchiveState message={message} />;
+}
+
 export default function BlogIndex({ locale, posts }: { locale: Locale; posts: IPost[] }) {
 	const copy = BLOG_COPY[locale];
 	const featuredPost = posts.find((post) => post.featured) ?? posts[0];
-	const hasSecondaryArchivePosts = Boolean(featuredPost) && posts.length > 1;
-	const archivePosts = hasSecondaryArchivePosts
+	const isSecondaryArchiveAvailable = Boolean(featuredPost) && posts.length > 1;
+	const archivePosts = isSecondaryArchiveAvailable
 		? posts.filter((post) => post.slug !== featuredPost.slug)
 		: posts;
-	const groupedPosts = getGroupedPosts(archivePosts);
-	const focusItems = copy.focus.map((item) => <li key={item}>{item}</li>);
+
 	const languageToggleItems = [
 		{
 			href: getLocaleBlogPath(KOREAN_LOCALE),
@@ -75,15 +99,13 @@ export default function BlogIndex({ locale, posts }: { locale: Locale; posts: IP
 			label: LOCALE_CODE_LABEL[ENGLISH_LOCALE],
 		},
 	];
-	const groupedPostSections = groupedPosts.map((group) => (
-		<ArchiveGroupSection key={group.name} group={group} locale={locale} />
-	));
-	const archiveContent =
-		groupedPostSections.length > 0 ? (
-			groupedPostSections
-		) : (
-			<EmptyArchiveState message={copy.emptyDescription} />
-		);
+
+	const archiveContent = renderArchiveContent({
+		locale,
+		message: copy.emptyDescription,
+		posts: archivePosts,
+	});
+	const focusItems = copy.focus.map((item) => <li key={item}>{item}</li>);
 
 	return (
 		<section className="px-6 pb-20 pt-24 sm:px-8">
@@ -116,8 +138,11 @@ export default function BlogIndex({ locale, posts }: { locale: Locale; posts: IP
 						<div className="mt-6 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
 							<div className="space-y-3">
 								<p className="text-sm text-stone-500">
-									{getPostDateLabel(featuredPost.date, locale)} /{' '}
-									{getReadingTimeLabel(featuredPost.readingTimeMinutes, locale)}
+									{getPostDateLabel({ date: featuredPost.date, locale })} /{' '}
+									{getReadingTimeLabel({
+										locale,
+										minutes: featuredPost.readingTimeMinutes,
+									})}
 								</p>
 								<h2 className="max-w-2xl font-serif text-3xl leading-tight text-stone-950 sm:text-5xl">
 									{featuredPost.title}

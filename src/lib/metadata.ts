@@ -1,23 +1,20 @@
 import { Metadata } from 'next';
 
+import { DEFAULT_LOCALE, SITE_COPY } from '@/lib/i18n';
 import { BLOG_URL } from '@/lib/post';
 
-const baseTitle = 'Minwoo Roh | AI-Era Developer Notes';
-const baseDescription =
-	'Editorial notes on software craft, AI-native workflows, and how developers stay useful as agents get stronger.';
+const defaultMetadataCopy = SITE_COPY[DEFAULT_LOCALE].metadata;
 const baseThumbnail = '/og.png';
 
-type MetadataInput = {
+export const buildMetadata = (input?: {
 	description?: string;
 	thumbnail?: string;
 	title?: string;
 	url?: string;
-};
-
-export const buildMetadata = (input?: MetadataInput): Metadata => {
-	const description = input?.description || baseDescription;
+}): Metadata => {
+	const description = input?.description || defaultMetadataCopy.baseDescription;
 	const thumbnail = input?.thumbnail || baseThumbnail;
-	const title = input?.title || baseTitle;
+	const title = input?.title || defaultMetadataCopy.baseTitle;
 	const url = input?.url || BLOG_URL;
 
 	const isProd = process.env.NODE_ENV === 'production';
