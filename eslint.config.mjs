@@ -192,7 +192,16 @@ const eslintConfig = [
 				'error',
 				{
 					ignoreUnusedTypeExports: false,
-					src: ['scripts/**/*.ts', 'src/lib/**/*.ts', 'src/types/**/*.ts', 'tests/unit/**/*.ts'],
+					ignoreExports: ['src/app/**/*.ts', 'src/app/**/*.tsx', 'src/components/**/*.tsx'],
+					src: [
+						'scripts/**/*.ts',
+						'src/app/**/*.ts',
+						'src/app/**/*.tsx',
+						'src/components/**/*.tsx',
+						'src/lib/**/*.ts',
+						'src/types/**/*.ts',
+						'tests/unit/**/*.ts',
+					],
 					unusedExports: true,
 				},
 			],

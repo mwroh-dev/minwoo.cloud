@@ -33,16 +33,16 @@ export const SITE_COPY = {
 			ctaLabel: 'Read writings',
 			eyebrow: 'Developer notes for the AI era',
 			previewLabel: 'Preview latest note',
-			questionEyebrow: 'Questions that keep coming back',
+			questionEyebrow: 'Questions I keep thinking about',
 			questionItems: [
 				'How far should a desired result be decomposed before an agent stops drifting?',
 				'Which conditions and boundaries decide implementation quality before code is written?',
 				'How can individual clarity reduce team bottlenecks?',
 			],
 			questionTitle: 'Can individual clarity really become team trust and fewer bottlenecks?',
-			title: 'I keep thinking about what developers need to get better at in the age of AI agents.',
+			title: 'I keep thinking about what developers should focus on in the agentic era.',
 			description:
-				'I think developer leverage is shifting away from typing speed and toward problem framing, task decomposition, specs, and making outcomes explainable. This home is where I keep notes on how clearer thinking can shape better collaboration.',
+				'I think developer leverage now comes from problem framing, task decomposition, specs, and making outcomes explainable. This is where I keep notes on sharpening individual thinking and on how that clarity can reduce team bottlenecks.',
 		},
 		metadata: {
 			baseDescription:
@@ -66,17 +66,16 @@ export const SITE_COPY = {
 			ctaLabel: '글 읽기',
 			eyebrow: 'AI 시대 개발자 노트',
 			previewLabel: '최신 글 미리 보기',
-			questionEyebrow: '요즘 자주 돌아오는 질문',
+			questionEyebrow: '요즘 자주 생각하는 질문',
 			questionItems: [
 				'원하는 결과를 어디까지 쪼개야 에이전트가 헛돌지 않는가.',
 				'좋은 구현은 코드보다 먼저 어떤 조건과 범위에서 결정되는가.',
 				'개인의 명확함은 어떻게 팀의 병목 감소로 이어지는가.',
 			],
 			questionTitle: '개인의 명확함은 결국 팀의 신뢰와 병목 감소로 이어질 수 있을까.',
-			title:
-				'에이전트가 코드를 쓰는 시대에, 개발자는 무엇을 더 잘해야 하는지 계속 생각하고 있습니다.',
+			title: 'Agentic 시대 개발자는 무엇을 집중 해야할지 고민 하고 학습합니다.',
 			description:
-				'저는 요즘 개발자의 경쟁력이 구현 속도보다 문제 정의, 작업 분해, 명세, 그리고 결과를 설명 가능한 형태로 만드는 데서 갈린다고 생각합니다. 이곳에는 개인의 사고를 더 또렷하게 만들고, 그 또렷함이 팀의 병목을 어떻게 줄일 수 있는지에 대한 기록을 남기고 있습니다.',
+				'이제는 개발자의 경쟁력은 문제 정의, 작업 분해, 명세, 그리고 결과를 설명 가능한 형태로 만드는 데서 성과를 만든다고 생각합니다. 이곳에는 개인의 사고를 더 또렷하게 만들고, 그 또렷함이 팀의 병목을 어떻게 줄일 수 있는지에 대한 기록을 남기고 있습니다.',
 		},
 		metadata: {
 			baseDescription: '문제 정의, 작업 분해, 명세, 그리고 AI 시대의 개발 협업 방식에 대한 기록.',
@@ -120,7 +119,7 @@ export const BLOG_COPY = {
 	[ENGLISH_LOCALE]: {
 		backToIndex: 'Back to archive',
 		description:
-			'I have been thinking a lot about how developer leverage is shifting away from typing speed and toward problem framing, task decomposition, specs, verification, and making outcomes explainable. This archive is where I keep notes on how individual clarity can turn into team trust and fewer bottlenecks.',
+			'I think developer leverage now comes from problem framing, task decomposition, specs, and making outcomes explainable. This archive is where I keep notes on sharpening individual thinking and on how that clarity can reduce team bottlenecks.',
 		emptyDescription:
 			'The Korean reading view is ready. The first essays will land here as the new direction takes shape.',
 		emptyTitle: 'The Korean edition is still being assembled.',
@@ -146,13 +145,13 @@ export const BLOG_COPY = {
 		statusActive: 'Available now',
 		statusSoon: 'Preparing now',
 		switchLabel: 'View',
-		title: 'Notes from trying to break problems into clearer tasks and conditions.',
+		title: 'Sharpening developer thinking.',
 		translateLabel: 'Translate',
 	},
 	[KOREAN_LOCALE]: {
 		backToIndex: '목록으로 돌아가기',
 		description:
-			'저는 요즘 개발자의 경쟁력이 구현 속도보다 문제 정의, 작업 분해, 명세, 검증, 그리고 결과를 설명 가능한 상태로 만드는 데서 갈린다고 생각합니다. 이곳에는 개인의 명확함이 어떻게 팀의 신뢰와 병목 감소로 이어지는지에 대한 기록을 남기고 있습니다.',
+			'이제는 개발자의 경쟁력은 문제 정의, 작업 분해, 명세, 그리고 결과를 설명 가능한 형태로 만드는 데서 성과를 만든다고 생각합니다. 이곳에는 개인의 사고를 더 또렷하게 만들고, 그 또렷함이 팀의 병목을 어떻게 줄일 수 있는지에 대한 기록을 남기고 있습니다.',
 		emptyDescription:
 			'구조는 먼저 준비해두었습니다. 한국어 에세이와 노트는 이 리뉴얼 방향에 맞춰 곧 채워질 예정입니다.',
 		emptyTitle: '한국어 에디션은 이제 막 틀을 잡고 있습니다.',
@@ -178,7 +177,7 @@ export const BLOG_COPY = {
 		statusActive: '지금 읽을 수 있음',
 		statusSoon: '준비 중',
 		switchLabel: 'View',
-		title: '문제를 잘게 쪼개고 조건을 더 또렷하게 만들기 위해 남기는 메모',
+		title: '개발자의 사고력 키우기',
 		translateLabel: 'Translate',
 	},
 } satisfies Record<

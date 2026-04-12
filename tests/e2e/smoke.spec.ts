@@ -25,9 +25,7 @@ test('home preview link reaches the localized sample post @smoke', async ({ page
 test('default archive renders the Korean writings view @smoke', async ({ page }) => {
 	await page.goto('/blog');
 
-	await expect(page.getByRole('heading', { level: 1 })).toContainText(
-		'문제를 잘게 쪼개고 조건을 더 또렷하게 만들기 위해 남기는 메모',
-	);
+	await expect(page.getByRole('heading', { level: 1 })).toContainText('개발자의 사고력 키우기');
 	await expect(page.getByText('메모와 기록')).toBeVisible();
 	await expect(page.getByRole('link', { name: 'EN' })).toBeVisible();
 });
@@ -36,16 +34,14 @@ test('korean locale archive redirects to the default archive route @smoke', asyn
 	await page.goto('/ko/blog');
 
 	await expect(page).toHaveURL('/blog');
-	await expect(page.getByRole('heading', { level: 1 })).toContainText(
-		'문제를 잘게 쪼개고 조건을 더 또렷하게 만들기 위해 남기는 메모',
-	);
+	await expect(page.getByRole('heading', { level: 1 })).toContainText('개발자의 사고력 키우기');
 });
 
 test('english archive is reachable from its localized route @smoke', async ({ page }) => {
 	await page.goto('/en/blog');
 
 	await expect(page.getByRole('heading', { level: 1 })).toContainText(
-		'Notes from trying to break problems into clearer tasks and conditions.',
+		'Sharpening developer thinking.',
 	);
 	await expect(page.getByRole('link', { name: 'KO' })).toBeVisible();
 });

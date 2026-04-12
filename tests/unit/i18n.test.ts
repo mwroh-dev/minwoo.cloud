@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+	BLOG_COPY,
 	ENGLISH_LOCALE,
 	getAlternateLocale,
 	getLocaleBlogPath,
@@ -9,6 +10,9 @@ import {
 	getReadingTimeLabel,
 	isLocale,
 	KOREAN_LOCALE,
+	LOCALE_CODE_LABEL,
+	LOCALE_LABEL,
+	SITE_COPY,
 } from '@/lib/i18n';
 
 describe('locale helpers', () => {
@@ -50,5 +54,22 @@ describe('locale helpers', () => {
 		{ expected: '7분 읽기', locale: KOREAN_LOCALE, minutes: 7 },
 	])('formats reading time labels for $locale', ({ expected, locale, minutes }) => {
 		expect(getReadingTimeLabel({ locale, minutes })).toBe(expected);
+	});
+
+	it('exposes locale labels for archive and detail switches', () => {
+		expect(LOCALE_LABEL[ENGLISH_LOCALE]).toBe('English');
+		expect(LOCALE_LABEL[KOREAN_LOCALE]).toBe('한국어');
+		expect(LOCALE_CODE_LABEL[ENGLISH_LOCALE]).toBe('EN');
+		expect(LOCALE_CODE_LABEL[KOREAN_LOCALE]).toBe('KO');
+	});
+
+	it('keeps localized home and archive copy aligned with the updated editorial framing', () => {
+		expect(SITE_COPY[ENGLISH_LOCALE].home.questionEyebrow).toBe('Questions I keep thinking about');
+		expect(SITE_COPY[ENGLISH_LOCALE].home.title).toBe(
+			'I keep thinking about what developers should focus on in the agentic era.',
+		);
+		expect(BLOG_COPY[ENGLISH_LOCALE].title).toBe('Sharpening developer thinking.');
+		expect(SITE_COPY[KOREAN_LOCALE].home.questionEyebrow).toBe('요즘 자주 생각하는 질문');
+		expect(BLOG_COPY[KOREAN_LOCALE].title).toBe('개발자의 사고력 키우기');
 	});
 });
