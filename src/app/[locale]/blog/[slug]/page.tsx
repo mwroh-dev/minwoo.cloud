@@ -24,6 +24,7 @@ import {
 } from '@/lib/i18n';
 import { buildMetadata } from '@/lib/metadata';
 import { BLOG_URL, getAllPosts, getAlternatePosts, getPostDocument } from '@/lib/post';
+import { getSafeHref, isExternalHttpHref } from '@/lib/security';
 
 function getCanonicalUrl({ locale, slug }: { locale: Locale; slug: string }) {
 	return `${BLOG_URL}/${locale}/blog/${slug}`;
@@ -59,16 +60,23 @@ export async function generateStaticParams() {
 function useMDXComponents(components: MDXComponents = {}): MDXComponents {
 	return {
 		...components,
-		a: ({ href, children }) => (
-			<a
-				href={href}
-				className="transition-colors duration-200 hover:text-orange-700"
-				target={href?.startsWith('http') ? '_blank' : undefined}
-				rel={href?.startsWith('http') ? 'noreferrer' : undefined}
-			>
-				{children}
-			</a>
-		),
+		a: ({ href, children }) => {
+			const safeHref = getSafeHref(typeof href === 'string' ? href : undefined);
+			const isExternalHref = isExternalHttpHref(safeHref);
+			const rel = isExternalHref ? 'noopener noreferrer' : undefined;
+			const target = isExternalHref ? '_blank' : undefined;
+
+			return (
+				<a
+					href={safeHref}
+					className="transition-colors duration-200 hover:text-orange-700"
+					target={target}
+					rel={rel}
+				>
+					{children}
+				</a>
+			);
+		},
 		blockquote: ({ children }) => <blockquote>{children}</blockquote>,
 		li: ({ children }) => <li>{children}</li>,
 	};

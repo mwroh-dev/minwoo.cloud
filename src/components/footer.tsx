@@ -6,6 +6,7 @@ import { GITHUB_PROFILE_URL, LINKEDIN_PROFILE_URL } from '@/lib/site';
 
 function Footer() {
 	const defaultFooterCopy = SITE_COPY[DEFAULT_LOCALE].footer;
+	const externalRel = 'noopener noreferrer';
 
 	return (
 		<footer className="mt-auto border-t border-stone-200 px-6 py-8 sm:px-8">
@@ -19,6 +20,7 @@ function Footer() {
 						<Link
 							href={GITHUB_PROFILE_URL}
 							target="_blank"
+							rel={externalRel}
 							aria-label={defaultFooterCopy.githubAriaLabel}
 						>
 							<Github size={16} />
@@ -26,6 +28,7 @@ function Footer() {
 						<Link
 							href={LINKEDIN_PROFILE_URL}
 							target="_blank"
+							rel={externalRel}
 							aria-label={defaultFooterCopy.linkedinAriaLabel}
 						>
 							<LinkedinIcon size={16} />
