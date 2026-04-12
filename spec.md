@@ -1,16 +1,22 @@
-# Active Spec
+---
+current_spec: specs/feat-blog-text-list-fd.md
+---
 
-## Current feature
+# Current Branch Spec
 
-- `specs/writings-editorial-current.md`
+## Current spec
+
+- `specs/feat-blog-text-list-fd.md`
 
 ## Status
 
-- Implemented on the current branch and treated as the living source of truth for the active home/writings restructure.
+- The current spec is the umbrella document for the active branch.
+- Every non-exempt changed file must be covered by the current spec through its `scope_paths`.
 
 ## Required verification
 
 - `yarn check:content`
+- `yarn check:specs`
 - `yarn lint`
 - `yarn format`
 - `yarn typecheck`
@@ -20,5 +26,5 @@
 
 ## Notes
 
-- Add new feature-level specs under `specs/`.
-- Keep this file short; use it as the active index, not the detailed implementation document.
+- Add new work-level specs under `specs/`.
+- Keep this file short; use it as the branch pointer, not the detailed implementation document.

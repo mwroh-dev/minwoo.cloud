@@ -1,3 +1,35 @@
+---
+spec_version: 1
+status: implemented
+context_mode: standalone
+scope_paths:
+  - .agents/skills/
+  - .eslintrc.json
+  - .gitignore
+  - .prettierignore
+  - .prettierrc.json
+  - .vscode/
+  - AGENTS.md
+  - docs/agent-rules/
+  - eslint.config.mjs
+  - next.config.ts
+  - package-lock.json
+  - playwright.config.ts
+  - postcss.config.mjs
+  - specs/writings-editorial-current.md
+  - src/app/
+  - src/components/
+  - src/content/
+  - src/lib/
+  - src/types/post.ts
+  - tailwind.config.ts
+  - tests/e2e/smoke.spec.ts
+  - tests/unit/post.test.ts
+  - tsconfig.json
+  - vitest.config.ts
+  - yarn.lock
+---
+
 # Writings Editorial Current State
 
 ## Goal
@@ -10,6 +42,34 @@
 - No CMS or remote content source
 - No search, tag filters, or pagination yet
 - No visual regression pipeline in this phase
+
+## Scope
+
+- `.agents/skills/`
+- `.eslintrc.json`
+- `.gitignore`
+- `.prettierignore`
+- `.prettierrc.json`
+- `.vscode/`
+- `AGENTS.md`
+- `docs/agent-rules/`
+- `eslint.config.mjs`
+- `next.config.ts`
+- `package-lock.json`
+- `playwright.config.ts`
+- `postcss.config.mjs`
+- `specs/writings-editorial-current.md`
+- `src/app/`
+- `src/components/`
+- `src/content/`
+- `src/lib/`
+- `src/types/post.ts`
+- `tailwind.config.ts`
+- `tests/e2e/smoke.spec.ts`
+- `tests/unit/post.test.ts`
+- `tsconfig.json`
+- `vitest.config.ts`
+- `yarn.lock`
 
 ## User-visible behavior
 
@@ -39,6 +99,11 @@
 - `date` must remain `YYYY-MM-DD`
 - `translationKey` links alternates across locales
 - Slugs are derived from filenames and must remain globally unique because legacy `/blog/[slug]` redirects rely on them
+
+## Constraints
+
+- Keep Korean as the default archive entry point while preserving English reading routes and legacy slug redirects.
+- Reuse the shared post parsing graph instead of re-implementing content parsing inside routes.
 
 ## Edge Cases
 

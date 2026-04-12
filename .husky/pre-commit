@@ -2,4 +2,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 yarn check:content
+yarn check:guidance:staged
 yarn verify:staged
