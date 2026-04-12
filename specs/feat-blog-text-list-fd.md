@@ -68,6 +68,26 @@ updated_at: 2026-04-12T00:00:00.000Z
 - Editorial routing must keep Korean as the default archive entry while preserving localized English routes and legacy `/blog/[slug]` redirects.
 - Evergreen repository rules stay in `AGENTS.md` and `docs/agent-rules/`; this document should only describe branch-specific intent and constraints.
 
+## Test Audit
+
+- Existing suite classification:
+  - `tests/unit/post.test.ts`: state-based unit
+  - `tests/unit/check-guidance.test.ts`: integration
+  - `tests/unit/specs.test.ts`: integration
+  - `tests/unit/security.test.ts`: table-driven unit plus state-based unit
+  - `tests/unit/i18n.test.ts`: state-based unit plus table-driven unit
+  - `tests/unit/metadata.test.ts`: state-based unit
+  - `tests/unit/routes.test.ts`: interaction-based unit plus state-based unit
+  - `tests/unit/check-content.test.ts`: integration
+  - `tests/e2e/smoke.spec.ts`: e2e smoke
+- Prioritized gaps and actions for this branch:
+  - locale/path helpers: new unit tests
+  - metadata defaults and overrides: new unit tests
+  - route redirects, `notFound`, static params, `robots`, and `sitemap`: new route tests
+  - content validation coverage: light refactor in `scripts/check-content.ts` plus new integration tests
+  - helper allow/deny matrices in security tests: changed test style to table-driven
+  - critical user flows for locale redirects, preview navigation, translation toggle behavior, and localized 404 paths: expanded smoke coverage
+
 ## Linked Detail Specs
 
 - `specs/writings-editorial-current.md` captures the editorial and archive behavior in more detail.

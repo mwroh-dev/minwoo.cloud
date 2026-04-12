@@ -4,7 +4,7 @@
 
 - This repository is a bilingual editorial site built with Next.js App Router and MDX content.
 - Read `spec.md` first for the currently active feature. Follow any linked detailed spec in `specs/` before editing repo-tracked files.
-- When touching `src/app`, `src/components`, `src/lib`, or `scripts`, also read the relevant files in `docs/agent-rules/`.
+- When touching `src/app`, `src/components`, `src/lib`, `scripts`, or `tests`, also read the relevant files in `docs/agent-rules/`.
 
 ## Architecture Overview
 
@@ -29,6 +29,7 @@
 - Keep presentation logic in components and content/data shaping in `src/lib`.
 - Prefer flat, mechanically editable control flow over compact inline predicates.
 - When a branch depends on a lookup that passes an object argument, extract the lookup result or a named predicate into an adjacent `const` before the branch.
+- When changing or adding tests, choose the smallest test level that proves the behavior and follow `docs/agent-rules/testing.md`.
 - Follow concern-specific rule files instead of inventing local style decisions:
   - `docs/agent-rules/imports.md`
   - `docs/agent-rules/structure.md`
@@ -36,6 +37,7 @@
   - `docs/agent-rules/naming.md`
   - `docs/agent-rules/i18n.md`
   - `docs/agent-rules/validation.md`
+  - `docs/agent-rules/testing.md`
 
 ## Definition of Done
 

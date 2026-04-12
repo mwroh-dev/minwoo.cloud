@@ -8,28 +8,36 @@ function getHeaderValue(key: string) {
 }
 
 describe('security link helpers', () => {
-	it('allows safe internal and absolute hrefs', () => {
-		expect(isSafeHref('/ko/blog')).toBe(true);
-		expect(isSafeHref('./relative-note')).toBe(true);
-		expect(isSafeHref('../archive')).toBe(true);
-		expect(isSafeHref('#footnote-1')).toBe(true);
-		expect(isSafeHref('https://example.com')).toBe(true);
-		expect(isSafeHref('mailto:test@example.com')).toBe(true);
-		expect(getSafeHref('tel:+821012345678')).toBe('tel:+821012345678');
+	it.each([
+		{ href: '/ko/blog', safeHref: '/ko/blog' },
+		{ href: './relative-note', safeHref: './relative-note' },
+		{ href: '../archive', safeHref: '../archive' },
+		{ href: '#footnote-1', safeHref: '#footnote-1' },
+		{ href: 'https://example.com', safeHref: 'https://example.com' },
+		{ href: 'mailto:test@example.com', safeHref: 'mailto:test@example.com' },
+		{ href: 'tel:+821012345678', safeHref: 'tel:+821012345678' },
+	])('accepts safe href %s', ({ href, safeHref }) => {
+		expect(isSafeHref(href)).toBe(true);
+		expect(getSafeHref(href)).toBe(safeHref);
 	});
 
-	it('rejects unsafe href schemes', () => {
-		expect(isSafeHref('//evil.example.com')).toBe(false);
-		expect(isSafeHref('javascript:alert(1)')).toBe(false);
-		expect(isSafeHref('data:text/html;base64,PHNjcmlwdD4=')).toBe(false);
-		expect(getSafeHref('javascript:alert(1)')).toBeUndefined();
+	it.each([
+		'//evil.example.com',
+		'javascript:alert(1)',
+		'data:text/html;base64,PHNjcmlwdD4=',
+		undefined,
+	])('rejects unsafe href %s', (href) => {
+		expect(isSafeHref(href)).toBe(false);
+		expect(getSafeHref(href)).toBeUndefined();
 	});
 
-	it('detects only external http links as tab-opening candidates', () => {
-		expect(isExternalHttpHref('https://example.com')).toBe(true);
-		expect(isExternalHttpHref('http://example.com')).toBe(true);
-		expect(isExternalHttpHref('/ko/blog')).toBe(false);
-		expect(isExternalHttpHref('mailto:test@example.com')).toBe(false);
+	it.each([
+		{ expected: true, href: 'https://example.com' },
+		{ expected: true, href: 'http://example.com' },
+		{ expected: false, href: '/ko/blog' },
+		{ expected: false, href: 'mailto:test@example.com' },
+	])('classifies external http candidate %s', ({ expected, href }) => {
+		expect(isExternalHttpHref(href)).toBe(expected);
 	});
 });
 
