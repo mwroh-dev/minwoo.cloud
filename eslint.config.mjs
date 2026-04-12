@@ -139,6 +139,7 @@ const eslintConfig = [
 			'.omx',
 			'.superpowers',
 			'.husky/_',
+			'next-env.d.ts',
 		],
 	},
 ];
