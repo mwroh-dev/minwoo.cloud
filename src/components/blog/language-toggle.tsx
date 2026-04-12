@@ -32,7 +32,7 @@ export default function LanguageToggle({
 	items: LanguageToggleItem[];
 	label?: string;
 }) {
-	const toggleElements = items.map((item) => {
+	const toggleElements = items.map(item => {
 		const className = getToggleItemClassName(item);
 
 		if (item.isActive || item.isDisabled || !item.href) {

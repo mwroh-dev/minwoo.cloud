@@ -10,6 +10,11 @@
 
 - If an internal type is used in only one place, inline it instead of defining a top-level type.
 - If an internal type is used in multiple places, define it near the top of the file.
+- Do not export a type or interface unless another module imports it.
+
+## Shared literal sources
+
+- If a local constant object or union already defines the allowed string values, reuse that shared symbol instead of repeating raw literals in factories, filters, or tagged objects.
 
 ## Function argument rules
 

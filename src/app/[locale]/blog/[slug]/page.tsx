@@ -54,7 +54,7 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-	return getAllPosts().map((post) => ({ locale: post.locale, slug: post.slug }));
+	return getAllPosts().map(post => ({ locale: post.locale, slug: post.slug }));
 }
 
 function useMDXComponents(components: MDXComponents = {}): MDXComponents {
@@ -100,14 +100,14 @@ export default async function LocalizedBlogPostPage({
 	const { content, post } = document;
 	const copy = BLOG_COPY[locale];
 	const alternates = getAlternatePosts({ post });
-	const alternateMap = new Map(alternates.map((alternate) => [alternate.locale, alternate]));
-	const translationToggleItems = LOCALES.map((candidateLocale) => ({
+	const alternateMap = new Map(alternates.map(alternate => [alternate.locale, alternate]));
+	const translationToggleItems = LOCALES.map(candidateLocale => ({
 		href: alternateMap.get(candidateLocale)?.href,
 		isActive: candidateLocale === locale,
 		isDisabled: candidateLocale !== locale && !alternateMap.get(candidateLocale)?.href,
 		label: LOCALE_CODE_LABEL[candidateLocale],
 	}));
-	const alternateLinks = alternates.map((alternate) => (
+	const alternateLinks = alternates.map(alternate => (
 		<Link
 			key={alternate.href}
 			href={alternate.href}

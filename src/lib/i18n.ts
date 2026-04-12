@@ -1,6 +1,6 @@
 export const LOCALE_VALUES = { ENGLISH: 'en', KOREAN: 'ko' } as const;
 
-export type LocaleKey = keyof typeof LOCALE_VALUES;
+type LocaleKey = keyof typeof LOCALE_VALUES;
 export type Locale = (typeof LOCALE_VALUES)[LocaleKey];
 
 export const ENGLISH_LOCALE = LOCALE_VALUES.ENGLISH;

@@ -53,7 +53,7 @@ function writePost(input: {
 			? `featured: ${input.frontmatter.featured}`
 			: '',
 		input.frontmatter.tags?.length
-			? `tags: [${input.frontmatter.tags.map((tag) => `'${tag}'`).join(', ')}]`
+			? `tags: [${input.frontmatter.tags.map(tag => `'${tag}'`).join(', ')}]`
 			: '',
 		input.frontmatter.translationKey ? `translationKey: '${input.frontmatter.translationKey}'` : '',
 	]
@@ -133,7 +133,7 @@ describe('runContentCheck', () => {
 
 		const result = runContentCheck({ contentPath: contentRoot, publicPath: publicRoot });
 
-		expect(result.issues.map((issue) => issue.code)).toContain(
+		expect(result.issues.map(issue => issue.code)).toContain(
 			CONTENT_ISSUE_CODE.MISSING_LOCALE_DIRECTORY,
 		);
 	});
@@ -151,7 +151,7 @@ describe('runContentCheck', () => {
 
 		const result = runContentCheck({ contentPath: contentRoot, publicPath: publicRoot });
 
-		expect(result.issues.map((issue) => issue.code)).toContain(
+		expect(result.issues.map(issue => issue.code)).toContain(
 			CONTENT_ISSUE_CODE.INVALID_FRONTMATTER,
 		);
 		consoleError.mockRestore();
@@ -186,7 +186,7 @@ describe('runContentCheck', () => {
 		const issueCodes = runContentCheck({
 			contentPath: contentRoot,
 			publicPath: publicRoot,
-		}).issues.map((issue) => issue.code);
+		}).issues.map(issue => issue.code);
 
 		expect(issueCodes).toContain(CONTENT_ISSUE_CODE.DUPLICATE_SLUG);
 		expect(issueCodes).toContain(CONTENT_ISSUE_CODE.GLOBAL_SLUG_UNIQUENESS_CHECK_FAILED);
@@ -222,7 +222,7 @@ describe('runContentCheck', () => {
 
 		expect(
 			runContentCheck({ contentPath: contentRoot, publicPath: publicRoot }).issues.map(
-				(issue) => issue.code,
+				issue => issue.code,
 			),
 		).toContain(CONTENT_ISSUE_CODE.DUPLICATE_TRANSLATION_KEY);
 	});
@@ -246,7 +246,7 @@ describe('runContentCheck', () => {
 		const issueCodes = runContentCheck({
 			contentPath: contentRoot,
 			publicPath: publicRoot,
-		}).issues.map((issue) => issue.code);
+		}).issues.map(issue => issue.code);
 
 		expect(issueCodes).toContain(CONTENT_ISSUE_CODE.BROKEN_LOCALIZED_BLOG_LINK);
 		expect(issueCodes).toContain(CONTENT_ISSUE_CODE.BROKEN_LEGACY_BLOG_LINK);
@@ -270,7 +270,7 @@ describe('runContentCheck', () => {
 
 		expect(
 			runContentCheck({ contentPath: contentRoot, publicPath: publicRoot }).issues.map(
-				(issue) => issue.code,
+				issue => issue.code,
 			),
 		).toContain(CONTENT_ISSUE_CODE.MISSING_PUBLIC_ASSET);
 	});

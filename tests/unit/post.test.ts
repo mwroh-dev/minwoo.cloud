@@ -8,6 +8,7 @@ import {
 	buildPostFromSource,
 	getAlternatePosts,
 	getGroupedPosts,
+	getPostBySlug,
 	getPostsByLocale,
 } from '@/lib/post';
 
@@ -43,9 +44,7 @@ function writePost(
 		frontmatter.description ? `description: '${frontmatter.description}'` : '',
 		frontmatter.series ? `series: '${frontmatter.series}'` : '',
 		typeof frontmatter.featured === 'boolean' ? `featured: ${frontmatter.featured}` : '',
-		frontmatter.tags?.length
-			? `tags: [${frontmatter.tags.map((tag) => `'${tag}'`).join(', ')}]`
-			: '',
+		frontmatter.tags?.length ? `tags: [${frontmatter.tags.map(tag => `'${tag}'`).join(', ')}]` : '',
 		frontmatter.translationKey ? `translationKey: '${frontmatter.translationKey}'` : '',
 	]
 		.filter(Boolean)
@@ -126,7 +125,7 @@ describe('post loaders', () => {
 
 		const posts = getPostsByLocale('ko', root);
 
-		expect(posts.map((post) => post.slug)).toEqual(['newer-post', 'older-post']);
+		expect(posts.map(post => post.slug)).toEqual(['newer-post', 'older-post']);
 	});
 
 	it('groups posts by series while preserving newest-first order inside a group', () => {
@@ -154,7 +153,7 @@ describe('post loaders', () => {
 		const groups = getGroupedPosts(getPostsByLocale('ko', root));
 
 		expect(groups[0]?.name).toBe('Alpha');
-		expect(groups[0]?.posts.map((post) => post.slug)).toEqual(['alpha-2', 'alpha-1']);
+		expect(groups[0]?.posts.map(post => post.slug)).toEqual(['alpha-2', 'alpha-1']);
 		expect(groups[1]?.name).toBe('Beta');
 	});
 
@@ -195,5 +194,27 @@ describe('post loaders', () => {
 		});
 
 		expect(getPostsByLocale('ko', root)).toEqual([]);
+	});
+
+	it('looks up a post by slug across locales', () => {
+		const root = createContentRoot();
+
+		writePost(root, 'en', 'english-only', {
+			title: 'English only',
+			date: '2026-04-11',
+			description: 'Only English content exists',
+			series: 'Notes',
+		});
+		writePost(root, 'ko', 'shared-note', {
+			title: '공유 노트',
+			date: '2026-04-12',
+			description: '한국어 본문',
+			series: 'Notes',
+		});
+
+		const post = getPostBySlug({ contentPath: root, slug: 'shared-note' });
+
+		expect(post?.locale).toBe('ko');
+		expect(post?.slug).toBe('shared-note');
 	});
 });

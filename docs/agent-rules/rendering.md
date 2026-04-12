@@ -9,5 +9,6 @@
 ## Branching
 
 - If the same return block mixes empty-state and list rendering, extract subcomponents or precompute the branch result before JSX.
+- If the empty-state branch is terminal and cheaper than the populated branch, return it before grouping, sorting, or mapping list data.
 - If a conditional pattern is repeated twice or more, extract it into a helper or named constant.
 - If repeated ternary behavior appears twice or more, replace it with a helper or extracted component.

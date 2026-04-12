@@ -7,6 +7,7 @@
 ## Required rule files
 
 - `docs/agent-rules/imports.md`
+- `docs/agent-rules/control-flow.md`
 - `docs/agent-rules/naming.md`
 - `docs/agent-rules/validation.md`
 

@@ -4,7 +4,7 @@ import nextConfig, { CONTENT_SECURITY_POLICY, SECURITY_HEADERS } from '../../nex
 import { getSafeHref, isExternalHttpHref, isSafeHref } from '@/lib/security';
 
 function getHeaderValue(key: string) {
-	return SECURITY_HEADERS.find((header) => header.key === key)?.value;
+	return SECURITY_HEADERS.find(header => header.key === key)?.value;
 }
 
 describe('security link helpers', () => {
@@ -26,7 +26,7 @@ describe('security link helpers', () => {
 		'javascript:alert(1)',
 		'data:text/html;base64,PHNjcmlwdD4=',
 		undefined,
-	])('rejects unsafe href %s', (href) => {
+	])('rejects unsafe href %s', href => {
 		expect(isSafeHref(href)).toBe(false);
 		expect(getSafeHref(href)).toBeUndefined();
 	});

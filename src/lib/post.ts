@@ -9,7 +9,7 @@ import { IGroupedPosts, IPost } from '@/types/post';
 export const CONTENT_PATH = path.join(process.cwd(), 'src', 'content');
 export const BLOG_URL = 'https://minwoo.cloud';
 
-export const PostFrontmatterSchema = z.object({
+const PostFrontmatterSchema = z.object({
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 	description: z.string(),
 	featured: z.boolean().optional(),
@@ -44,8 +44,8 @@ function getLocalePostPaths({
 
 	return fs
 		.readdirSync(directory)
-		.filter((file) => file.endsWith('.mdx'))
-		.map((file) => path.join(directory, file));
+		.filter(file => file.endsWith('.mdx'))
+		.map(file => path.join(directory, file));
 }
 
 function estimateReadingTime({ content, locale }: { content: string; locale: Locale }) {
@@ -134,20 +134,20 @@ function loadPosts({
 }) {
 	return sortPosts(
 		getLocalePostPaths({ contentPath, locale })
-			.map((filePath) => parsePostFile({ filePath, locale }))
+			.map(filePath => parsePostFile({ filePath, locale }))
 			.filter((post): post is IPost => post !== null),
 	);
 }
 
 export function getAllPosts(contentPath = CONTENT_PATH) {
-	return sortPosts(LOCALES.flatMap((locale) => loadPosts({ contentPath, locale })));
+	return sortPosts(LOCALES.flatMap(locale => loadPosts({ contentPath, locale })));
 }
 
 export function getPostsByLocale(locale: Locale, contentPath = CONTENT_PATH) {
 	return loadPosts({ contentPath, locale });
 }
 
-export function getPostByLocaleAndSlug({
+function getPostByLocaleAndSlug({
 	contentPath = CONTENT_PATH,
 	locale,
 	slug,
@@ -156,7 +156,7 @@ export function getPostByLocaleAndSlug({
 	locale: Locale;
 	slug: string;
 }) {
-	return loadPosts({ contentPath, locale }).find((post) => post.slug === slug) ?? null;
+	return loadPosts({ contentPath, locale }).find(post => post.slug === slug) ?? null;
 }
 
 export function getPostBySlug({
@@ -166,7 +166,7 @@ export function getPostBySlug({
 	contentPath?: string;
 	slug: string;
 }) {
-	return getAllPosts(contentPath).find((post) => post.slug === slug) ?? null;
+	return getAllPosts(contentPath).find(post => post.slug === slug) ?? null;
 }
 
 export function getPostDocument({
@@ -197,7 +197,7 @@ export function getAlternatePosts({
 	post: IPost;
 }) {
 	return getAllPosts(contentPath).filter(
-		(candidate) =>
+		candidate =>
 			candidate.translationKey === post.translationKey && candidate.locale !== post.locale,
 	);
 }

@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url';
 
 import { guidanceCheckConfig, type GuidanceCheckConfig } from './guidance-check.config';
 
+const CURRENT_DIRECTORY_SEGMENT = '.';
+const EMPTY_FILE_CONTENT = '';
 const GUIDANCE_ISSUE_CATEGORY = { LOGICAL_ERROR: 'LOGICAL_ERROR' } as const;
 
 const GUIDANCE_ISSUE_CODE = {
@@ -12,6 +14,13 @@ const GUIDANCE_ISSUE_CODE = {
 	CLAUDE_RULE_LINE_LIMIT_EXCEEDED: 'CLAUDE_RULE_LINE_LIMIT_EXCEEDED',
 	CODEX_EFFECTIVE_CHAIN_LIMIT_EXCEEDED: 'CODEX_EFFECTIVE_CHAIN_LIMIT_EXCEEDED',
 	REPO_RULE_LINE_LIMIT_EXCEEDED: 'REPO_RULE_LINE_LIMIT_EXCEEDED',
+} as const;
+
+const GUIDANCE_FILE_KIND = {
+	CLAUDE_FILE: 'claudeFile',
+	CLAUDE_RULE: 'claudeRule',
+	CODEX_FILE: 'codexFile',
+	REPO_RULE: 'repoRule',
 } as const;
 
 const FILESYSTEM_SCAN_IGNORE_DIRECTORIES = new Set([
@@ -22,6 +31,8 @@ const FILESYSTEM_SCAN_IGNORE_DIRECTORIES = new Set([
 	'node_modules',
 ]);
 
+const ROOT_DIRECTORY = '';
+
 type GuidanceIssue = {
 	category: (typeof GUIDANCE_ISSUE_CATEGORY)[keyof typeof GUIDANCE_ISSUE_CATEGORY];
 	code: (typeof GUIDANCE_ISSUE_CODE)[keyof typeof GUIDANCE_ISSUE_CODE];
@@ -29,7 +40,7 @@ type GuidanceIssue = {
 	file?: string;
 };
 
-export type GuidanceFile = { content: string; path: string };
+type GuidanceFile = { content: string; path: string };
 
 export type GuidanceSnapshot = {
 	directories: string[];
@@ -37,9 +48,9 @@ export type GuidanceSnapshot = {
 	mode: 'filesystem' | 'staged';
 };
 
-export type CodexChainReport = { byteCount: number; directory: string; files: string[] };
+type CodexChainReport = { byteCount: number; directory: string; files: string[] };
 
-export type GuidanceCheckResult = {
+type GuidanceCheckResult = {
 	claudeFilesChecked: number;
 	claudeRuleFilesChecked: number;
 	codexChainReports: CodexChainReport[];
@@ -53,46 +64,43 @@ type GuidanceCheckInput = { config?: GuidanceCheckConfig; cwd: string; isStaged?
 
 type GuidanceAnalysisInput = { config: GuidanceCheckConfig; snapshot: GuidanceSnapshot };
 
-type GuidanceFileKind = 'claudeFile' | 'claudeRule' | 'codexFile' | 'repoRule';
+type GuidanceFileKind = (typeof GUIDANCE_FILE_KIND)[keyof typeof GUIDANCE_FILE_KIND];
 
 type GuidanceFileEntry = { content: string; kind: GuidanceFileKind; path: string };
 
 type SnapshotLoadInput = { config: GuidanceCheckConfig; cwd: string };
 
-function addDirectoryPath(input: { directories: Set<string>; filePath: string }) {
-	const normalizedPath = toPosixPath(input.filePath);
+function addDirectoryPath({
+	directories,
+	filePath,
+}: {
+	directories: Set<string>;
+	filePath: string;
+}) {
+	const normalizedPath = toPosixPath(filePath);
 	const relativeDirectory = path.posix.dirname(normalizedPath);
 
-	if (relativeDirectory === '.') {
-		return;
-	}
+	if (relativeDirectory === CURRENT_DIRECTORY_SEGMENT) return;
 
-	let currentDirectory = '';
+	let currentDirectory = ROOT_DIRECTORY;
 	for (const segment of relativeDirectory.split('/')) {
 		currentDirectory = currentDirectory ? `${currentDirectory}/${segment}` : segment;
-		input.directories.add(currentDirectory);
+		directories.add(currentDirectory);
 	}
 }
 
-function addIssue(input: { issues: GuidanceIssue[]; issue: GuidanceIssue }) {
-	input.issues.push(input.issue);
-}
-
-export function buildCodexChainReports(input: GuidanceAnalysisInput) {
-	const codexFiles = input.snapshot.files.filter(({ path: filePath }) =>
-		isCodexInstructionPath({ config: input.config, filePath }),
+export function buildCodexChainReports({ config, snapshot }: GuidanceAnalysisInput) {
+	const codexFiles = snapshot.files.filter(({ path: filePath }) =>
+		isCodexInstructionPath({ config, filePath }),
 	);
-	const codexFileMap = new Map(codexFiles.map((file) => [file.path, file.content]));
-	const codexSelectionByDirectory = getCodexInstructionSelections({
-		config: input.config,
-		files: codexFiles,
-	});
+	const codexFileMap = new Map(codexFiles.map(file => [file.path, file.content]));
+	const codexSelectionByDirectory = getCodexInstructionSelections({ config, files: codexFiles });
 	const codexChainReports: CodexChainReport[] = [];
 
-	for (const directory of [...input.snapshot.directories].sort(sortDirectories)) {
+	for (const directory of [...snapshot.directories].sort(sortDirectories)) {
 		const files: string[] = [];
 
-		for (const ancestor of getDirectoryAncestors({ directory })) {
+		for (const ancestor of getDirectoryAncestors(directory)) {
 			const selectedFile = codexSelectionByDirectory.get(ancestor);
 			if (selectedFile) {
 				files.push(selectedFile);
@@ -109,39 +117,40 @@ export function buildCodexChainReports(input: GuidanceAnalysisInput) {
 	return codexChainReports;
 }
 
-function createGuidanceFileEntry(input: {
+function createGuidanceFileEntry({
+	config,
+	content,
+	filePath,
+}: {
 	config: GuidanceCheckConfig;
 	content: string;
 	filePath: string;
 }): GuidanceFileEntry | null {
-	const isCodexInstructionFile = isCodexInstructionPath({
-		config: input.config,
-		filePath: input.filePath,
-	});
+	const isCodexInstructionFile = isCodexInstructionPath({ config, filePath });
 	if (isCodexInstructionFile) {
-		return { content: input.content, kind: 'codexFile', path: input.filePath };
+		return { content, kind: GUIDANCE_FILE_KIND.CODEX_FILE, path: filePath };
 	}
 
-	const isClaudeRuleFile = isClaudeRulePath({ filePath: input.filePath });
+	const isClaudeRuleFile = isClaudeRulePath(filePath);
 	if (isClaudeRuleFile) {
-		return { content: input.content, kind: 'claudeRule', path: input.filePath };
+		return { content, kind: GUIDANCE_FILE_KIND.CLAUDE_RULE, path: filePath };
 	}
 
-	const isClaudeInstructionFile = isClaudeInstructionPath({ filePath: input.filePath });
+	const isClaudeInstructionFile = isClaudeInstructionPath(filePath);
 	if (isClaudeInstructionFile) {
-		return { content: input.content, kind: 'claudeFile', path: input.filePath };
+		return { content, kind: GUIDANCE_FILE_KIND.CLAUDE_FILE, path: filePath };
 	}
 
-	const isRepoRuleFile = isRepoRulePath({ config: input.config, filePath: input.filePath });
+	const isRepoRuleFile = isRepoRulePath({ config, filePath });
 	if (isRepoRuleFile) {
-		return { content: input.content, kind: 'repoRule', path: input.filePath };
+		return { content, kind: GUIDANCE_FILE_KIND.REPO_RULE, path: filePath };
 	}
 
 	return null;
 }
 
-function formatDirectoryLabel(input: { directory: string }) {
-	return input.directory || '.';
+function formatDirectoryLabel(directory: string) {
+	return directory || CURRENT_DIRECTORY_SEGMENT;
 }
 
 function formatIssue(issue: GuidanceIssue) {
@@ -154,15 +163,18 @@ function formatIssue(issue: GuidanceIssue) {
 	return issueHeader;
 }
 
-function getCodexInstructionSelections(input: {
+function getCodexInstructionSelections({
+	config,
+	files,
+}: {
 	config: GuidanceCheckConfig;
 	files: GuidanceFile[];
 }) {
 	const selections = new Map<string, string>();
 	const filesByDirectory = new Map<string, Set<string>>();
 
-	for (const file of input.files) {
-		const directory = getFileDirectory({ filePath: file.path });
+	for (const file of files) {
+		const directory = getFileDirectory(file.path);
 		const directoryFiles = filesByDirectory.get(directory) ?? new Set<string>();
 
 		directoryFiles.add(path.posix.basename(file.path));
@@ -183,7 +195,7 @@ function getCodexInstructionSelections(input: {
 			continue;
 		}
 
-		for (const fallbackFileName of input.config.codexFallbackFilenames) {
+		for (const fallbackFileName of config.codexFallbackFilenames) {
 			if (directoryFiles.has(fallbackFileName)) {
 				selections.set(
 					directory,
@@ -197,14 +209,12 @@ function getCodexInstructionSelections(input: {
 	return selections;
 }
 
-function getDirectoryAncestors(input: { directory: string }) {
-	if (!input.directory) {
-		return [''];
-	}
+function getDirectoryAncestors(directory: string) {
+	if (!directory) return [ROOT_DIRECTORY];
 
-	const segments = input.directory.split('/');
-	const ancestors = [''];
-	let currentDirectory = '';
+	const segments = directory.split('/');
+	const ancestors = [ROOT_DIRECTORY];
+	let currentDirectory = ROOT_DIRECTORY;
 
 	for (const segment of segments) {
 		currentDirectory = currentDirectory ? `${currentDirectory}/${segment}` : segment;
@@ -214,42 +224,35 @@ function getDirectoryAncestors(input: { directory: string }) {
 	return ancestors;
 }
 
-function getFileDirectory(input: { filePath: string }) {
-	const directory = path.posix.dirname(input.filePath);
-	return directory === '.' ? '' : directory;
+function getFileDirectory(filePath: string) {
+	const directory = path.posix.dirname(filePath);
+	return directory === CURRENT_DIRECTORY_SEGMENT ? ROOT_DIRECTORY : directory;
 }
 
-function getGitCachedPaths(input: { cwd: string }) {
-	const rawPaths = execFileSync('git', ['ls-files', '--cached', '-z'], {
-		cwd: input.cwd,
-		encoding: 'utf8',
-	});
+function getGitCachedPaths(cwd: string) {
+	const rawPaths = execFileSync('git', ['ls-files', '--cached', '-z'], { cwd, encoding: 'utf8' });
 
 	return rawPaths
 		.split('\0')
-		.map((filePath) => filePath.trim())
+		.map(filePath => filePath.trim())
 		.filter(Boolean)
-		.map((filePath) => toPosixPath(filePath));
+		.map(filePath => toPosixPath(filePath));
 }
 
-function getGitIndexFileContents(input: { cwd: string; filePath: string }) {
-	return execFileSync('git', ['show', `:${input.filePath}`], { cwd: input.cwd, encoding: 'utf8' });
+function getGitIndexFileContents({ cwd, filePath }: { cwd: string; filePath: string }) {
+	return execFileSync('git', ['show', `:${filePath}`], { cwd, encoding: 'utf8' });
 }
 
-function getGuidanceFileEntries(input: GuidanceAnalysisInput) {
-	return input.snapshot.files
-		.map((file) =>
-			createGuidanceFileEntry({ config: input.config, content: file.content, filePath: file.path }),
-		)
+function getGuidanceFileEntries({ config, snapshot }: GuidanceAnalysisInput) {
+	return snapshot.files
+		.map(file => createGuidanceFileEntry({ config, content: file.content, filePath: file.path }))
 		.filter((file): file is GuidanceFileEntry => file !== null);
 }
 
-function getLineCount(input: { content: string }) {
-	if (!input.content) {
-		return 0;
-	}
+function getLineCount(content: string) {
+	if (!content) return 0;
 
-	const normalizedContent = input.content.replace(/\r\n/g, '\n');
+	const normalizedContent = content.replace(/\r\n/g, '\n');
 	const trimmedContent = normalizedContent.endsWith('\n')
 		? normalizedContent.slice(0, -1)
 		: normalizedContent;
@@ -257,10 +260,16 @@ function getLineCount(input: { content: string }) {
 	return trimmedContent.split('\n').length;
 }
 
-function getMergedContentByteCount(input: { fileMap: Map<string, string>; paths: string[] }) {
-	const nonEmptyContents = input.paths
-		.map((filePath) => input.fileMap.get(filePath) ?? '')
-		.filter((content) => Buffer.byteLength(content, 'utf8') > 0);
+function getMergedContentByteCount({
+	fileMap,
+	paths,
+}: {
+	fileMap: Map<string, string>;
+	paths: string[];
+}) {
+	const nonEmptyContents = paths
+		.map(filePath => fileMap.get(filePath) ?? EMPTY_FILE_CONTENT)
+		.filter(content => Buffer.byteLength(content, 'utf8') > 0);
 
 	if (nonEmptyContents.length === 0) {
 		return 0;
@@ -274,14 +283,14 @@ function getMergedContentByteCount(input: { fileMap: Map<string, string>; paths:
 	return contentBytes + separatorBytes;
 }
 
-function isClaudeInstructionPath(input: { filePath: string }) {
-	const baseName = path.posix.basename(input.filePath);
+function isClaudeInstructionPath(filePath: string) {
+	const baseName = path.posix.basename(filePath);
 
 	return baseName === 'CLAUDE.md' || baseName === 'CLAUDE.local.md';
 }
 
-function isClaudeRulePath(input: { filePath: string }) {
-	const normalizedPath = toPosixPath(input.filePath);
+function isClaudeRulePath(filePath: string) {
+	const normalizedPath = toPosixPath(filePath);
 
 	return (
 		normalizedPath.endsWith('.md') &&
@@ -289,141 +298,123 @@ function isClaudeRulePath(input: { filePath: string }) {
 	);
 }
 
-function isCodexInstructionPath(input: { config: GuidanceCheckConfig; filePath: string }) {
-	const baseName = path.posix.basename(input.filePath);
+function isCodexInstructionPath({
+	config,
+	filePath,
+}: {
+	config: GuidanceCheckConfig;
+	filePath: string;
+}) {
+	const baseName = path.posix.basename(filePath);
 
 	return (
 		baseName === 'AGENTS.md' ||
 		baseName === 'AGENTS.override.md' ||
-		input.config.codexFallbackFilenames.includes(baseName)
+		config.codexFallbackFilenames.includes(baseName)
 	);
 }
 
-function isRepoRulePath(input: { config: GuidanceCheckConfig; filePath: string }) {
-	return input.config.repoRuleGlobs.some((glob) =>
-		getGlobMatcher({ glob }).test(toPosixPath(input.filePath)),
-	);
+function isRepoRulePath({ config, filePath }: { config: GuidanceCheckConfig; filePath: string }) {
+	return config.repoRuleGlobs.some(glob => getGlobMatcher(glob).test(toPosixPath(filePath)));
 }
 
-function joinDirectoryAndFileName(input: { directory: string; fileName: string }) {
-	return input.directory ? `${input.directory}/${input.fileName}` : input.fileName;
+function joinDirectoryAndFileName({
+	directory,
+	fileName,
+}: {
+	directory: string;
+	fileName: string;
+}) {
+	return directory ? `${directory}/${fileName}` : fileName;
 }
 
-export function loadFilesystemSnapshot(input: SnapshotLoadInput): GuidanceSnapshot {
-	const directories = new Set<string>(['']);
+export function loadFilesystemSnapshot({ config, cwd }: SnapshotLoadInput): GuidanceSnapshot {
+	const directories = new Set<string>([ROOT_DIRECTORY]);
 	const files: GuidanceFile[] = [];
 
-	walkDirectory({
-		config: input.config,
-		cwd: input.cwd,
-		directories,
-		files,
-		relativeDirectory: '',
-	});
+	walkDirectory({ config, cwd, directories, files, relativeDirectory: ROOT_DIRECTORY });
 
 	return { directories: [...directories], files, mode: 'filesystem' };
 }
 
-export function loadStagedSnapshot(input: SnapshotLoadInput): GuidanceSnapshot {
-	const directories = new Set<string>(['']);
+export function loadStagedSnapshot({ config, cwd }: SnapshotLoadInput): GuidanceSnapshot {
+	const directories = new Set<string>([ROOT_DIRECTORY]);
 	const files: GuidanceFile[] = [];
 
-	for (const filePath of getGitCachedPaths({ cwd: input.cwd })) {
+	for (const filePath of getGitCachedPaths(cwd)) {
 		addDirectoryPath({ directories, filePath });
 
 		const guidanceFileEntry = createGuidanceFileEntry({
-			config: input.config,
-			content: '',
+			config,
+			content: EMPTY_FILE_CONTENT,
 			filePath,
 		});
-		if (!guidanceFileEntry) {
-			continue;
-		}
+		if (!guidanceFileEntry) continue;
 
-		files.push({ content: getGitIndexFileContents({ cwd: input.cwd, filePath }), path: filePath });
+		files.push({ content: getGitIndexFileContents({ cwd, filePath }), path: filePath });
 	}
 
 	return { directories: [...directories], files, mode: 'staged' };
 }
 
-export function analyzeGuidanceSnapshot(input: GuidanceAnalysisInput): GuidanceCheckResult {
+export function analyzeGuidanceSnapshot({
+	config,
+	snapshot,
+}: GuidanceAnalysisInput): GuidanceCheckResult {
 	const issues: GuidanceIssue[] = [];
-	const guidanceFiles = getGuidanceFileEntries(input);
-	const claudeFiles = guidanceFiles.filter(({ kind }) => kind === 'claudeFile');
-	const claudeRuleFiles = guidanceFiles.filter(({ kind }) => kind === 'claudeRule');
-	const repoRuleFiles = guidanceFiles.filter(({ kind }) => kind === 'repoRule');
-	const codexInstructionFiles = guidanceFiles.filter(({ kind }) => kind === 'codexFile');
-	const codexChainReports = buildCodexChainReports(input);
-	const worstCodexChain =
-		codexChainReports.length > 0
-			? [...codexChainReports].sort((left, right) => {
-					if (right.byteCount !== left.byteCount) {
-						return right.byteCount - left.byteCount;
-					}
-
-					return sortDirectories(left.directory, right.directory);
-				})[0]
-			: null;
+	const guidanceFiles = getGuidanceFileEntries({ config, snapshot });
+	const claudeFiles = guidanceFiles.filter(({ kind }) => kind === GUIDANCE_FILE_KIND.CLAUDE_FILE);
+	const claudeRuleFiles = guidanceFiles.filter(
+		({ kind }) => kind === GUIDANCE_FILE_KIND.CLAUDE_RULE,
+	);
+	const repoRuleFiles = guidanceFiles.filter(({ kind }) => kind === GUIDANCE_FILE_KIND.REPO_RULE);
+	const codexInstructionFiles = guidanceFiles.filter(
+		({ kind }) => kind === GUIDANCE_FILE_KIND.CODEX_FILE,
+	);
+	const codexChainReports = buildCodexChainReports({ config, snapshot });
+	const worstCodexChain = getWorstCodexChain(codexChainReports);
 
 	for (const file of claudeFiles) {
-		const lineCount = getLineCount({ content: file.content });
-		if (lineCount <= input.config.sharedPerFileLineLimit) {
-			continue;
-		}
+		const lineCount = getLineCount(file.content);
+		if (lineCount <= config.sharedPerFileLineLimit) continue;
 
-		addIssue({
-			issues,
-			issue: {
-				category: GUIDANCE_ISSUE_CATEGORY.LOGICAL_ERROR,
-				code: GUIDANCE_ISSUE_CODE.CLAUDE_FILE_LINE_LIMIT_EXCEEDED,
-				detail: `${lineCount} lines exceeds the ${input.config.sharedPerFileLineLimit}-line limit. Split project-wide instructions with imports or path-scoped .claude/rules files.`,
-				file: file.path,
-			},
+		issues.push({
+			category: GUIDANCE_ISSUE_CATEGORY.LOGICAL_ERROR,
+			code: GUIDANCE_ISSUE_CODE.CLAUDE_FILE_LINE_LIMIT_EXCEEDED,
+			detail: `${lineCount} lines exceeds the ${config.sharedPerFileLineLimit}-line limit. Split project-wide instructions with imports or path-scoped .claude/rules files.`,
+			file: file.path,
 		});
 	}
 
 	for (const file of claudeRuleFiles) {
-		const lineCount = getLineCount({ content: file.content });
-		if (lineCount <= input.config.sharedPerFileLineLimit) {
-			continue;
-		}
+		const lineCount = getLineCount(file.content);
+		if (lineCount <= config.sharedPerFileLineLimit) continue;
 
-		addIssue({
-			issues,
-			issue: {
-				category: GUIDANCE_ISSUE_CATEGORY.LOGICAL_ERROR,
-				code: GUIDANCE_ISSUE_CODE.CLAUDE_RULE_LINE_LIMIT_EXCEEDED,
-				detail: `${lineCount} lines exceeds the ${input.config.sharedPerFileLineLimit}-line limit. Split .claude/rules content into smaller topic or path-scoped files.`,
-				file: file.path,
-			},
+		issues.push({
+			category: GUIDANCE_ISSUE_CATEGORY.LOGICAL_ERROR,
+			code: GUIDANCE_ISSUE_CODE.CLAUDE_RULE_LINE_LIMIT_EXCEEDED,
+			detail: `${lineCount} lines exceeds the ${config.sharedPerFileLineLimit}-line limit. Split .claude/rules content into smaller topic or path-scoped files.`,
+			file: file.path,
 		});
 	}
 
 	for (const file of repoRuleFiles) {
-		const lineCount = getLineCount({ content: file.content });
-		if (lineCount <= input.config.sharedPerFileLineLimit) {
-			continue;
-		}
+		const lineCount = getLineCount(file.content);
+		if (lineCount <= config.sharedPerFileLineLimit) continue;
 
-		addIssue({
-			issues,
-			issue: {
-				category: GUIDANCE_ISSUE_CATEGORY.LOGICAL_ERROR,
-				code: GUIDANCE_ISSUE_CODE.REPO_RULE_LINE_LIMIT_EXCEEDED,
-				detail: `${lineCount} lines exceeds the ${input.config.sharedPerFileLineLimit}-line limit. Split shared guidance into narrower docs/agent-rules topic files.`,
-				file: file.path,
-			},
+		issues.push({
+			category: GUIDANCE_ISSUE_CATEGORY.LOGICAL_ERROR,
+			code: GUIDANCE_ISSUE_CODE.REPO_RULE_LINE_LIMIT_EXCEEDED,
+			detail: `${lineCount} lines exceeds the ${config.sharedPerFileLineLimit}-line limit. Split shared guidance into narrower docs/agent-rules topic files.`,
+			file: file.path,
 		});
 	}
 
-	if (worstCodexChain && worstCodexChain.byteCount > input.config.codexProjectDocMaxBytes) {
-		addIssue({
-			issues,
-			issue: {
-				category: GUIDANCE_ISSUE_CATEGORY.LOGICAL_ERROR,
-				code: GUIDANCE_ISSUE_CODE.CODEX_EFFECTIVE_CHAIN_LIMIT_EXCEEDED,
-				detail: `${worstCodexChain.byteCount} bytes exceeds the ${input.config.codexProjectDocMaxBytes}-byte effective chain limit for ${formatDirectoryLabel({ directory: worstCodexChain.directory })}. Move specialized instructions into deeper AGENTS.md files or configured fallback files.`,
-			},
+	if (worstCodexChain && worstCodexChain.byteCount > config.codexProjectDocMaxBytes) {
+		issues.push({
+			category: GUIDANCE_ISSUE_CATEGORY.LOGICAL_ERROR,
+			code: GUIDANCE_ISSUE_CODE.CODEX_EFFECTIVE_CHAIN_LIMIT_EXCEEDED,
+			detail: `${worstCodexChain.byteCount} bytes exceeds the ${config.codexProjectDocMaxBytes}-byte effective chain limit for ${formatDirectoryLabel(worstCodexChain.directory)}. Move specialized instructions into deeper AGENTS.md files or configured fallback files.`,
 		});
 	}
 
@@ -438,24 +429,28 @@ export function analyzeGuidanceSnapshot(input: GuidanceAnalysisInput): GuidanceC
 	};
 }
 
-export function runGuidanceCheck(input: GuidanceCheckInput): GuidanceCheckResult {
-	const config = input.config ?? guidanceCheckConfig;
-	const snapshot = input.isStaged
-		? loadStagedSnapshot({ config, cwd: input.cwd })
-		: loadFilesystemSnapshot({ config, cwd: input.cwd });
+export function runGuidanceCheck({
+	config: configOverride,
+	cwd,
+	isStaged,
+}: GuidanceCheckInput): GuidanceCheckResult {
+	const config = configOverride ?? guidanceCheckConfig;
+	const snapshot = isStaged
+		? loadStagedSnapshot({ config, cwd })
+		: loadFilesystemSnapshot({ config, cwd });
 
 	return analyzeGuidanceSnapshot({ config, snapshot });
 }
 
-function getGlobMatcher(input: { glob: string }) {
+function getGlobMatcher(glob: string) {
 	const regexParts: string[] = ['^'];
 
-	for (let index = 0; index < input.glob.length; index += 1) {
-		const character = input.glob[index];
-		const nextCharacter = input.glob[index + 1];
+	for (let index = 0; index < glob.length; index += 1) {
+		const character = glob[index];
+		const nextCharacter = glob[index + 1];
 
 		if (character === '*' && nextCharacter === '*') {
-			const followingCharacter = input.glob[index + 2];
+			const followingCharacter = glob[index + 2];
 			if (followingCharacter === '/') {
 				regexParts.push('(?:.*/)?');
 				index += 2;
@@ -477,7 +472,7 @@ function getGlobMatcher(input: { glob: string }) {
 			continue;
 		}
 
-		regexParts.push(escapeRegexCharacter({ character }));
+		regexParts.push(escapeRegexCharacter(character));
 	}
 
 	regexParts.push('$');
@@ -485,12 +480,12 @@ function getGlobMatcher(input: { glob: string }) {
 	return new RegExp(regexParts.join(''));
 }
 
-function escapeRegexCharacter(input: { character: string }) {
-	if (/[$()*+.?[\\\]^{|}]/.test(input.character)) {
-		return `\\${input.character}`;
+function escapeRegexCharacter(character: string) {
+	if (/[$()*+.?[\\\]^{|}]/.test(character)) {
+		return `\\${character}`;
 	}
 
-	return input.character;
+	return character;
 }
 
 function sortDirectories(left: string, right: string) {
@@ -505,14 +500,36 @@ function toPosixPath(filePath: string) {
 	return filePath.split(path.sep).join(path.posix.sep);
 }
 
-function walkDirectory(input: {
+function getWorstCodexChain(codexChainReports: CodexChainReport[]) {
+	if (codexChainReports.length === 0) {
+		return null;
+	}
+
+	return [...codexChainReports].sort(sortCodexChainReports)[0] ?? null;
+}
+
+function sortCodexChainReports(left: CodexChainReport, right: CodexChainReport) {
+	if (right.byteCount !== left.byteCount) {
+		return right.byteCount - left.byteCount;
+	}
+
+	return sortDirectories(left.directory, right.directory);
+}
+
+function walkDirectory({
+	config,
+	cwd,
+	directories,
+	files,
+	relativeDirectory,
+}: {
 	config: GuidanceCheckConfig;
 	cwd: string;
 	directories: Set<string>;
 	files: GuidanceFile[];
 	relativeDirectory: string;
 }) {
-	const absoluteDirectory = path.join(input.cwd, input.relativeDirectory);
+	const absoluteDirectory = path.join(cwd, relativeDirectory);
 	const directoryEntries = fs.readdirSync(absoluteDirectory, { withFileTypes: true });
 
 	for (const entry of directoryEntries) {
@@ -520,33 +537,25 @@ function walkDirectory(input: {
 			continue;
 		}
 
-		const relativePath = input.relativeDirectory
-			? path.posix.join(input.relativeDirectory, entry.name)
+		const relativePath = relativeDirectory
+			? path.posix.join(relativeDirectory, entry.name)
 			: entry.name;
 
 		if (entry.isDirectory()) {
-			input.directories.add(relativePath);
-			walkDirectory({
-				config: input.config,
-				cwd: input.cwd,
-				directories: input.directories,
-				files: input.files,
-				relativeDirectory: relativePath,
-			});
+			directories.add(relativePath);
+			walkDirectory({ config, cwd, directories, files, relativeDirectory: relativePath });
 			continue;
 		}
 
 		const guidanceFileEntry = createGuidanceFileEntry({
-			config: input.config,
-			content: '',
+			config,
+			content: EMPTY_FILE_CONTENT,
 			filePath: relativePath,
 		});
-		if (!guidanceFileEntry) {
-			continue;
-		}
+		if (!guidanceFileEntry) continue;
 
-		input.files.push({
-			content: fs.readFileSync(path.join(input.cwd, relativePath), 'utf8'),
+		files.push({
+			content: fs.readFileSync(path.join(cwd, relativePath), 'utf8'),
 			path: relativePath,
 		});
 	}
@@ -564,7 +573,7 @@ function main() {
 
 		if (result.worstCodexChain) {
 			console.error(
-				`\nWorst Codex chain: ${formatDirectoryLabel({ directory: result.worstCodexChain.directory })} (${result.worstCodexChain.byteCount}/${guidanceCheckConfig.codexProjectDocMaxBytes} bytes)`,
+				`\nWorst Codex chain: ${formatDirectoryLabel(result.worstCodexChain.directory)} (${result.worstCodexChain.byteCount}/${guidanceCheckConfig.codexProjectDocMaxBytes} bytes)`,
 			);
 		}
 
@@ -572,7 +581,7 @@ function main() {
 	}
 
 	const worstCodexChainSummary = result.worstCodexChain
-		? `${formatDirectoryLabel({ directory: result.worstCodexChain.directory })} ${result.worstCodexChain.byteCount}/${guidanceCheckConfig.codexProjectDocMaxBytes} bytes`
+		? `${formatDirectoryLabel(result.worstCodexChain.directory)} ${result.worstCodexChain.byteCount}/${guidanceCheckConfig.codexProjectDocMaxBytes} bytes`
 		: `none 0/${guidanceCheckConfig.codexProjectDocMaxBytes} bytes`;
 
 	console.log(

@@ -5,7 +5,7 @@ import { DEFAULT_LOCALE, getLocaleBlogPath, getLocalizedBlogPostPath, SITE_COPY 
 
 export default function Home() {
 	const defaultHomeCopy = SITE_COPY[DEFAULT_LOCALE].home;
-	const questionItems = defaultHomeCopy.questionItems.map((item) => <li key={item}>{item}</li>);
+	const questionItems = defaultHomeCopy.questionItems.map(item => <li key={item}>{item}</li>);
 
 	return (
 		<section className="px-6 pb-16 pt-10 sm:px-8 sm:pt-12">

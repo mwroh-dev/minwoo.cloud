@@ -34,15 +34,13 @@ type SpecFrontmatter = {
 	updated_at?: string;
 };
 
-export type CurrentSpecIndex = { currentSpec: string; path: string };
-
-export type ChangedPathsSnapshot = {
+type ChangedPathsSnapshot = {
 	baseRef?: string;
 	mode: 'base' | 'explicit' | 'staged';
 	paths: string[];
 };
 
-export type SpecDocument = {
+type SpecDocument = {
 	body: string;
 	content: string;
 	frontmatter: SpecFrontmatter;
@@ -50,14 +48,14 @@ export type SpecDocument = {
 	path: string;
 };
 
-export type SpecIssue = {
+type SpecIssue = {
 	category: (typeof SPEC_ISSUE_CATEGORY)[keyof typeof SPEC_ISSUE_CATEGORY];
 	code: (typeof SPEC_ISSUE_CODE)[keyof typeof SPEC_ISSUE_CODE];
 	detail: string;
 	file?: string;
 };
 
-export type SpecsCheckResult = {
+type SpecsCheckResult = {
 	changedPaths: ChangedPathsSnapshot;
 	currentSpecPath: string | null;
 	issues: SpecIssue[];
@@ -114,7 +112,7 @@ function addIssue(input: { issue: SpecIssue; issues: SpecIssue[] }) {
 }
 
 function dedupePaths(input: { paths: string[] }) {
-	return [...new Set(input.paths.map((filePath) => normalizePath({ filePath })))].sort(sortPaths);
+	return [...new Set(input.paths.map(filePath => normalizePath({ filePath })))].sort(sortPaths);
 }
 
 function getGitOutput(input: { args: string[]; cwd: string }) {
@@ -131,11 +129,7 @@ function getGitPaths(input: { args: string[]; cwd: string }) {
 }
 
 function getHeadingNames(input: { content: string }) {
-	return [...input.content.matchAll(/^##\s+(.+)$/gm)].map((match) => match[1].trim());
-}
-
-export function getSpecIssueCode() {
-	return SPEC_ISSUE_CODE;
+	return [...input.content.matchAll(/^##\s+(.+)$/gm)].map(match => match[1].trim());
 }
 
 function getCurrentTimestamp() {
@@ -167,7 +161,7 @@ function humanizeSlug(input: { slug: string }) {
 	return input.slug
 		.split('-')
 		.filter(Boolean)
-		.map((segment) => segment[0].toUpperCase() + segment.slice(1))
+		.map(segment => segment[0].toUpperCase() + segment.slice(1))
 		.join(' ');
 }
 
@@ -176,14 +170,14 @@ function isExemptChangedPath(input: { config: SpecsCheckConfig; filePath: string
 		return true;
 	}
 
-	const hasExemptSuffix = input.config.exemptFileSuffixes.some((suffix) =>
+	const hasExemptSuffix = input.config.exemptFileSuffixes.some(suffix =>
 		input.filePath.endsWith(suffix),
 	);
 	if (hasExemptSuffix) {
 		return true;
 	}
 
-	return input.config.exemptPathPrefixes.some((prefix) => input.filePath.startsWith(prefix));
+	return input.config.exemptPathPrefixes.some(prefix => input.filePath.startsWith(prefix));
 }
 
 function isNonEmptyString(value: unknown): value is string {
@@ -265,7 +259,7 @@ function readCurrentSpecIndex(input: ReadCurrentSpecIndexInput) {
 		: null;
 	const rawLegacyActiveSpecs = parsed.data[input.config.legacyActiveSpecsField];
 	const legacyActiveSpecs = Array.isArray(rawLegacyActiveSpecs)
-		? rawLegacyActiveSpecs.filter(isNonEmptyString).map((filePath) => normalizePath({ filePath }))
+		? rawLegacyActiveSpecs.filter(isNonEmptyString).map(filePath => normalizePath({ filePath }))
 		: [];
 	const hasSingleLegacySpec = legacyActiveSpecs.length === 1;
 	const currentSpec = currentSpecFromField ?? (hasSingleLegacySpec ? legacyActiveSpecs[0] : null);
@@ -447,7 +441,7 @@ function validateSpecDocument(input: { config: SpecsCheckConfig; document: SpecD
 			},
 			issues,
 		});
-	} else if (scope_paths.some((scopePath) => !isNonEmptyString(scopePath))) {
+	} else if (scope_paths.some(scopePath => !isNonEmptyString(scopePath))) {
 		addIssue({
 			issue: {
 				category: SPEC_ISSUE_CATEGORY.LOGICAL_ERROR,
@@ -459,7 +453,7 @@ function validateSpecDocument(input: { config: SpecsCheckConfig; document: SpecD
 		});
 	}
 
-	const headings = new Set(input.document.headings.map((heading) => heading.toLowerCase()));
+	const headings = new Set(input.document.headings.map(heading => heading.toLowerCase()));
 	for (const requiredSection of input.config.requiredSections) {
 		const hasRequiredSection = headings.has(requiredSection.toLowerCase());
 		if (!hasRequiredSection) {
@@ -498,7 +492,7 @@ export function buildCurrentSpecIndexDocument(input: {
 		'',
 		'## Required verification',
 		'',
-		...config.defaultVerificationCommands.map((command) => `- \`${command}\``),
+		...config.defaultVerificationCommands.map(command => `- \`${command}\``),
 		'',
 		'## Notes',
 		'',
@@ -509,7 +503,7 @@ export function buildCurrentSpecIndexDocument(input: {
 	return matter.stringify(bodyLines.join('\n'), { [config.currentSpecField]: currentSpec });
 }
 
-export function buildSpecDraft(input: SpecDraftInput) {
+function buildSpecDraft(input: SpecDraftInput) {
 	const config = input.config ?? specsCheckConfig;
 	const scopePaths = dedupePaths({ paths: input.changedPaths });
 	const title = input.title?.trim() || humanizeSlug({ slug: input.slug });
@@ -529,7 +523,7 @@ export function buildSpecDraft(input: SpecDraftInput) {
 		'',
 		'## Scope',
 		'',
-		...scopePaths.map((scopePath) => `- \`${scopePath}\``),
+		...scopePaths.map(scopePath => `- \`${scopePath}\``),
 		'',
 		'## Constraints',
 		'',
@@ -538,7 +532,7 @@ export function buildSpecDraft(input: SpecDraftInput) {
 		'',
 		'## Verification',
 		'',
-		...config.defaultVerificationCommands.map((command) => `- \`${command}\``),
+		...config.defaultVerificationCommands.map(command => `- \`${command}\``),
 		'',
 		'## Rollback',
 		'',
@@ -564,7 +558,7 @@ export function formatSpecIssue(input: { issue: SpecIssue }) {
 	return `[${input.issue.category}:${input.issue.code}] ${input.issue.detail}`;
 }
 
-export function resolveChangedPaths(input: ChangedPathsInput): ChangedPathsSnapshot {
+function resolveChangedPaths(input: ChangedPathsInput): ChangedPathsSnapshot {
 	if (input.changedPaths && input.changedPaths.length > 0) {
 		return { mode: 'explicit', paths: dedupePaths({ paths: input.changedPaths }) };
 	}
@@ -609,7 +603,7 @@ export function runSpecsCheck(input: RunSpecsCheckInput): SpecsCheckResult {
 		isStaged: input.isStaged,
 	});
 	const nonExemptChangedPaths = changedPaths.paths.filter(
-		(filePath) => !isExemptChangedPath({ config, filePath }),
+		filePath => !isExemptChangedPath({ config, filePath }),
 	);
 	const { index, issues: indexIssues } = readCurrentSpecIndex({ config, cwd: input.cwd });
 
@@ -641,7 +635,7 @@ export function runSpecsCheck(input: RunSpecsCheckInput): SpecsCheckResult {
 		: [];
 
 	for (const filePath of nonExemptChangedPaths) {
-		const isCovered = scopePaths.some((scopePath) =>
+		const isCovered = scopePaths.some(scopePath =>
 			matchScopePath({ changedPath: filePath, scopePath }),
 		);
 		if (!isCovered) {

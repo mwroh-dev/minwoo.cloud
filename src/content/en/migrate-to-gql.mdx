@@ -78,7 +78,7 @@ const useCombinedData = async () => {
 	const bResult = await bResponse.json();
 
 	// Manually combining responses
-	return aResult.map((a) => ({ ...a, relatedData: bResult.find((b) => b.id === a.relatedId) }));
+	return aResult.map(a => ({ ...a, relatedData: bResult.find(b => b.id === a.relatedId) }));
 };
 ```
 

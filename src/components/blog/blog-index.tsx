@@ -17,7 +17,7 @@ import { getGroupedPosts } from '@/lib/post';
 import { IGroupedPosts, IPost } from '@/types/post';
 
 function ArchiveGroupSection({ group, locale }: { group: IGroupedPosts; locale: Locale }) {
-	const postItems = group.posts.map((post) => (
+	const postItems = group.posts.map(post => (
 		<li key={post.href}>
 			<Link
 				href={post.href}
@@ -65,23 +65,28 @@ function renderArchiveContent({
 	message: string;
 	posts: IPost[];
 }) {
-	const archiveGroupSections = getGroupedPosts(posts).map((group) => (
+	if (posts.length === 0) {
+		return <EmptyArchiveState message={message} />;
+	}
+
+	const groupedPosts = getGroupedPosts(posts);
+	if (groupedPosts.length === 0) {
+		return <EmptyArchiveState message={message} />;
+	}
+
+	const archiveGroupSections = groupedPosts.map(group => (
 		<ArchiveGroupSection key={group.name} group={group} locale={locale} />
 	));
 
-	if (archiveGroupSections.length > 0) {
-		return archiveGroupSections;
-	}
-
-	return <EmptyArchiveState message={message} />;
+	return archiveGroupSections;
 }
 
 export default function BlogIndex({ locale, posts }: { locale: Locale; posts: IPost[] }) {
 	const copy = BLOG_COPY[locale];
-	const featuredPost = posts.find((post) => post.featured) ?? posts[0];
+	const featuredPost = posts.find(post => post.featured) ?? posts[0];
 	const isSecondaryArchiveAvailable = Boolean(featuredPost) && posts.length > 1;
 	const archivePosts = isSecondaryArchiveAvailable
-		? posts.filter((post) => post.slug !== featuredPost.slug)
+		? posts.filter(post => post.slug !== featuredPost.slug)
 		: posts;
 
 	const languageToggleItems = [
@@ -102,7 +107,7 @@ export default function BlogIndex({ locale, posts }: { locale: Locale; posts: IP
 		message: copy.emptyDescription,
 		posts: archivePosts,
 	});
-	const focusItems = copy.focus.map((item) => <li key={item}>{item}</li>);
+	const focusItems = copy.focus.map(item => <li key={item}>{item}</li>);
 
 	return (
 		<section className="px-6 pb-20 pt-24 sm:px-8">

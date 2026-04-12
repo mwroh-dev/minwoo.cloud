@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { writeSpecDraft } from './specs.lib';
 
 function getArgumentValue(input: { flagName: string }) {
-	const flagIndex = process.argv.findIndex((argument) => argument === input.flagName);
+	const flagIndex = process.argv.findIndex(argument => argument === input.flagName);
 	const argumentValue = flagIndex >= 0 ? process.argv[flagIndex + 1] : undefined;
 
 	return argumentValue?.trim() ? argumentValue : undefined;
@@ -15,7 +15,7 @@ function main() {
 	const changedPaths = changedPathsArgument
 		? changedPathsArgument
 				.split(',')
-				.map((filePath) => filePath.trim())
+				.map(filePath => filePath.trim())
 				.filter(Boolean)
 		: undefined;
 	const result = writeSpecDraft({

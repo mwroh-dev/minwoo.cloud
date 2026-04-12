@@ -101,7 +101,7 @@ describe('analyzeGuidanceSnapshot', () => {
 		});
 
 		const paymentsReport = codexChainReports.find(
-			(report) => report.directory === 'services/payments',
+			report => report.directory === 'services/payments',
 		);
 
 		expect(paymentsReport?.files).toEqual([
@@ -133,7 +133,7 @@ describe('snapshot loading', () => {
 
 		const snapshot = loadFilesystemSnapshot({ config: createConfig(), cwd: root });
 
-		expect(snapshot.files.some((file) => file.path === '.claude/rules/frontend/testing.md')).toBe(
+		expect(snapshot.files.some(file => file.path === '.claude/rules/frontend/testing.md')).toBe(
 			true,
 		);
 	});

@@ -6,7 +6,7 @@ import { LOCALES, LOCALE_VALUES, type Locale } from '@/lib/i18n';
 import { CONTENT_PATH, buildPostFromSource } from '@/lib/post';
 import { IPost } from '@/types/post';
 
-export const CONTENT_ISSUE_CATEGORY = {
+const CONTENT_ISSUE_CATEGORY = {
 	LOGICAL_ERROR: 'LOGICAL_ERROR',
 	PHYSICAL_ERROR: 'PHYSICAL_ERROR',
 } as const;
@@ -22,14 +22,14 @@ export const CONTENT_ISSUE_CODE = {
 	MISSING_PUBLIC_ASSET: 'MISSING_PUBLIC_ASSET',
 } as const;
 
-export type ContentIssue = {
+type ContentIssue = {
 	category: (typeof CONTENT_ISSUE_CATEGORY)[keyof typeof CONTENT_ISSUE_CATEGORY];
 	code: (typeof CONTENT_ISSUE_CODE)[keyof typeof CONTENT_ISSUE_CODE];
 	detail?: string;
 	file?: string;
 };
 
-export type ContentCheckResult = { issues: ContentIssue[]; postsChecked: number };
+type ContentCheckResult = { issues: ContentIssue[]; postsChecked: number };
 
 type CollectedPost = { content: string; post: IPost };
 
@@ -231,7 +231,7 @@ function validateInternalLinks(input: {
 	}
 }
 
-export function formatContentIssue(input: { issue: ContentIssue }) {
+function formatContentIssue(input: { issue: ContentIssue }) {
 	const issueHeader = `[${input.issue.category}:${input.issue.code}]`;
 	const issueDetail = input.issue.detail ? ` ${input.issue.detail}` : '';
 
@@ -259,7 +259,7 @@ export function runContentCheck(input?: {
 	return { issues, postsChecked: posts.length };
 }
 
-export function main() {
+function main() {
 	const result = runContentCheck();
 
 	if (result.issues.length > 0) {

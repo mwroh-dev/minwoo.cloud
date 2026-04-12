@@ -145,7 +145,7 @@ updated_at: 2026-04-12T00:00:00.000Z
 
 		const result = runSpecsCheck({ changedPaths: ['scripts/check-specs.ts'], cwd: root });
 
-		expect(result.issues.map((issue) => issue.code)).toContain('UNCOVERED_CHANGED_FILE');
+		expect(result.issues.map(issue => issue.code)).toContain('UNCOVERED_CHANGED_FILE');
 	});
 
 	it('fails when spec.md does not declare a single current spec', () => {
@@ -166,7 +166,7 @@ active_specs:
 
 		const result = runSpecsCheck({ changedPaths: ['scripts/check-specs.ts'], cwd: root });
 
-		expect(result.issues.map((issue) => issue.code)).toContain('CURRENT_SPEC_INDEX_INVALID');
+		expect(result.issues.map(issue => issue.code)).toContain('CURRENT_SPEC_INDEX_INVALID');
 	});
 });
 
