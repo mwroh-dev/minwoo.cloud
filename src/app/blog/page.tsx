@@ -1,8 +1,8 @@
 import BlogIndex from '@/components/blog/blog-index';
-import { getPostsByLocale } from '@/lib/post';
+import { getAllPosts } from '@/lib/post';
 
 export default function BlogPage() {
-	const posts = getPostsByLocale('ko');
+	const posts = getAllPosts();
 
 	return <BlogIndex posts={posts} />;
 }

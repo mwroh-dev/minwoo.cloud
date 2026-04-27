@@ -8,11 +8,7 @@ const navigationMocks = vi.hoisted(() => ({
 	}),
 }));
 
-const postModuleMocks = vi.hoisted(() => ({
-	getAllPosts: vi.fn(),
-	getPostDocument: vi.fn(),
-	getPostsByLocale: vi.fn(),
-}));
+const postModuleMocks = vi.hoisted(() => ({ getAllPosts: vi.fn(), getPostDocument: vi.fn() }));
 
 vi.mock('next/navigation', () => navigationMocks);
 
@@ -23,7 +19,6 @@ vi.mock('@/lib/post', async () => {
 		...actual,
 		getAllPosts: postModuleMocks.getAllPosts,
 		getPostDocument: postModuleMocks.getPostDocument,
-		getPostsByLocale: postModuleMocks.getPostsByLocale,
 	};
 });
 
@@ -53,10 +48,7 @@ describe('blog post metadata and static params', () => {
 
 		const metadata = await generateMetadata({ params: Promise.resolve({ slug: 'test-post' }) });
 
-		expect(postModuleMocks.getPostDocument).toHaveBeenCalledWith({
-			locale: 'ko',
-			slug: 'test-post',
-		});
+		expect(postModuleMocks.getPostDocument).toHaveBeenCalledWith({ slug: 'test-post' });
 		expect(metadata.title).toBe('테스트 글 | Minwoo Roh');
 		expect(metadata.description).toBe('설명');
 		expect(metadata.openGraph).toMatchObject({
@@ -76,11 +68,8 @@ describe('blog post metadata and static params', () => {
 		expect(navigationMocks.notFound).toHaveBeenCalledTimes(1);
 	});
 
-	it('returns every ko post as a static route param', async () => {
-		postModuleMocks.getAllPosts.mockReturnValue([
-			{ locale: 'ko', slug: 'first-post' },
-			{ locale: 'ko', slug: 'second-post' },
-		]);
+	it('returns every post as a static route param', async () => {
+		postModuleMocks.getAllPosts.mockReturnValue([{ slug: 'first-post' }, { slug: 'second-post' }]);
 
 		expect(await generateStaticParams()).toEqual([{ slug: 'first-post' }, { slug: 'second-post' }]);
 	});

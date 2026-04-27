@@ -15,15 +15,13 @@ import { buildMetadata } from '@/lib/metadata';
 import { BLOG_URL, getAllPosts, getPostDocument } from '@/lib/post';
 import { getSafeHref, isExternalHttpHref } from '@/lib/security';
 
-const LOCALE = 'ko' as const;
-
 export async function generateMetadata({
 	params,
 }: {
 	params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
 	const { slug } = await params;
-	const document = getPostDocument({ locale: LOCALE, slug: decodeURIComponent(slug) });
+	const document = getPostDocument({ slug: decodeURIComponent(slug) });
 	if (!document) {
 		notFound();
 	}
@@ -67,13 +65,13 @@ function useMDXComponents(components: MDXComponents = {}): MDXComponents {
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
 	const { slug } = await params;
-	const document = getPostDocument({ locale: LOCALE, slug: decodeURIComponent(slug) });
+	const document = getPostDocument({ slug: decodeURIComponent(slug) });
 	if (!document) {
 		notFound();
 	}
 
 	const { content, post } = document;
-	const copy = BLOG_COPY[LOCALE];
+	const copy = BLOG_COPY;
 	const compiledMDX = await evaluate(content, {
 		...runtime,
 		useMDXComponents: () => useMDXComponents(),
@@ -83,7 +81,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
 	return (
 		<section className="px-6 pb-20 pt-16 sm:px-8 sm:pt-20">
-			<article className="mx-auto max-w-4xl" lang={LOCALE}>
+			<article className="mx-auto max-w-4xl" lang="ko">
 				<Link
 					href="/blog"
 					className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.22em] text-stone-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-950 hover:text-stone-950"

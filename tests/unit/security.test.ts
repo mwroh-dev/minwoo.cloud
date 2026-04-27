@@ -9,7 +9,7 @@ function getHeaderValue(key: string) {
 
 describe('security link helpers', () => {
 	it.each([
-		{ href: '/ko/blog', safeHref: '/ko/blog' },
+		{ href: '/blog', safeHref: '/blog' },
 		{ href: './relative-note', safeHref: './relative-note' },
 		{ href: '../archive', safeHref: '../archive' },
 		{ href: '#footnote-1', safeHref: '#footnote-1' },
@@ -34,7 +34,7 @@ describe('security link helpers', () => {
 	it.each([
 		{ expected: true, href: 'https://example.com' },
 		{ expected: true, href: 'http://example.com' },
-		{ expected: false, href: '/ko/blog' },
+		{ expected: false, href: '/blog' },
 		{ expected: false, href: 'mailto:test@example.com' },
 	])('classifies external http candidate %s', ({ expected, href }) => {
 		expect(isExternalHttpHref(href)).toBe(expected);

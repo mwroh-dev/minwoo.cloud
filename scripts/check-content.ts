@@ -2,9 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { type Locale } from '@/lib/i18n';
-
-const LOCALES: Locale[] = ['ko'];
 import { CONTENT_PATH, buildPostFromSource } from '@/lib/post';
 import { IPost } from '@/types/post';
 
@@ -15,12 +12,9 @@ const CONTENT_ISSUE_CATEGORY = {
 
 export const CONTENT_ISSUE_CODE = {
 	BROKEN_LEGACY_BLOG_LINK: 'BROKEN_LEGACY_BLOG_LINK',
-	BROKEN_LOCALIZED_BLOG_LINK: 'BROKEN_LOCALIZED_BLOG_LINK',
 	DUPLICATE_SLUG: 'DUPLICATE_SLUG',
-	DUPLICATE_TRANSLATION_KEY: 'DUPLICATE_TRANSLATION_KEY',
 	GLOBAL_SLUG_UNIQUENESS_CHECK_FAILED: 'GLOBAL_SLUG_UNIQUENESS_CHECK_FAILED',
 	INVALID_FRONTMATTER: 'INVALID_FRONTMATTER',
-	MISSING_LOCALE_DIRECTORY: 'MISSING_LOCALE_DIRECTORY',
 	MISSING_PUBLIC_ASSET: 'MISSING_PUBLIC_ASSET',
 } as const;
 
@@ -39,59 +33,39 @@ function addIssue(input: { issue: ContentIssue; issues: ContentIssue[] }) {
 	input.issues.push(input.issue);
 }
 
-function validateLocaleDirectories(input: { contentPath: string; issues: ContentIssue[] }) {
-	for (const locale of LOCALES) {
-		const localeDirectory = path.join(input.contentPath, locale);
-		if (!fs.existsSync(localeDirectory)) {
-			addIssue({
-				issues: input.issues,
-				issue: {
-					category: CONTENT_ISSUE_CATEGORY.PHYSICAL_ERROR,
-					code: CONTENT_ISSUE_CODE.MISSING_LOCALE_DIRECTORY,
-					detail: localeDirectory,
-				},
-			});
-		}
-	}
-}
-
 function collectPosts(input: { contentPath: string; issues: ContentIssue[] }) {
 	const posts: CollectedPost[] = [];
 
-	for (const locale of LOCALES) {
-		const localeDirectory = path.join(input.contentPath, locale);
-		if (!fs.existsSync(localeDirectory)) {
+	if (!fs.existsSync(input.contentPath)) {
+		return posts;
+	}
+
+	for (const entry of fs.readdirSync(input.contentPath, { withFileTypes: true })) {
+		if (!entry.isFile() || !entry.name.endsWith('.mdx')) {
 			continue;
 		}
 
-		for (const file of fs.readdirSync(localeDirectory)) {
-			if (!file.endsWith('.mdx')) {
-				continue;
-			}
+		const sourcePath = path.join(input.contentPath, entry.name);
+		const fileContents = fs.readFileSync(sourcePath, 'utf8');
+		const post = buildPostFromSource({
+			fileContents,
+			slug: path.basename(entry.name, '.mdx'),
+			sourcePath,
+		});
 
-			const sourcePath = path.join(localeDirectory, file);
-			const fileContents = fs.readFileSync(sourcePath, 'utf8');
-			const post = buildPostFromSource({
-				fileContents,
-				locale,
-				slug: path.basename(file, '.mdx'),
-				sourcePath,
+		if (!post) {
+			addIssue({
+				issues: input.issues,
+				issue: {
+					category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
+					code: CONTENT_ISSUE_CODE.INVALID_FRONTMATTER,
+					file: sourcePath,
+				},
 			});
-
-			if (!post) {
-				addIssue({
-					issues: input.issues,
-					issue: {
-						category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
-						code: CONTENT_ISSUE_CODE.INVALID_FRONTMATTER,
-						file: sourcePath,
-					},
-				});
-				continue;
-			}
-
-			posts.push({ content: fileContents, post });
+			continue;
 		}
+
+		posts.push({ content: fileContents, post });
 	}
 
 	return posts;
@@ -99,7 +73,6 @@ function collectPosts(input: { contentPath: string; issues: ContentIssue[] }) {
 
 function validateUniqueness(input: { issues: ContentIssue[]; posts: CollectedPost[] }) {
 	const slugMap = new Map<string, string>();
-	const translationKeyMap = new Map<string, string>();
 
 	for (const { post } of input.posts) {
 		const existingSlug = slugMap.get(post.slug);
@@ -116,34 +89,11 @@ function validateUniqueness(input: { issues: ContentIssue[]; posts: CollectedPos
 		} else {
 			slugMap.set(post.slug, post.sourcePath);
 		}
-
-		const localizedTranslationKey = `${post.locale}:${post.translationKey}`;
-		const existingTranslation = translationKeyMap.get(localizedTranslationKey);
-		if (existingTranslation) {
-			addIssue({
-				issues: input.issues,
-				issue: {
-					category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
-					code: CONTENT_ISSUE_CODE.DUPLICATE_TRANSLATION_KEY,
-					detail: localizedTranslationKey,
-					file: post.sourcePath,
-				},
-			});
-		} else {
-			translationKeyMap.set(localizedTranslationKey, post.sourcePath);
-		}
 	}
 }
 
 function isKnownInternalRoute(linkPath: string) {
 	return linkPath === '/' || linkPath === '/blog';
-}
-
-function getLocalizedSlugMatch(linkPath: string) {
-	const localizedRoutePattern = /^\/blog\/([^/?#]+)$/;
-	const match = linkPath.match(localizedRoutePattern);
-
-	return match ? [match[0], 'ko', match[1]] : null;
 }
 
 function validateInternalLinks(input: {
@@ -165,7 +115,7 @@ function validateInternalLinks(input: {
 				continue;
 			}
 
-			const blogPostMatch = getLocalizedSlugMatch(linkPath) ?? linkPath.match(blogPostPattern);
+			const blogPostMatch = linkPath.match(blogPostPattern);
 			if (blogPostMatch) {
 				const slug = blogPostMatch[blogPostMatch.length - 1] as string;
 				if (!slugSet.has(slug)) {
@@ -226,8 +176,6 @@ export function runContentCheck(input?: {
 	const contentPath = input?.contentPath ?? CONTENT_PATH;
 	const publicPath = input?.publicPath ?? path.join(process.cwd(), 'public');
 	const issues: ContentIssue[] = [];
-
-	validateLocaleDirectories({ contentPath, issues });
 
 	const posts = collectPosts({ contentPath, issues });
 	validateUniqueness({ issues, posts });

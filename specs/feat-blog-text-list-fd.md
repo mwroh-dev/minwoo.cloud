@@ -40,7 +40,7 @@ updated_at: 2026-04-12T00:00:00.000Z
 
 ## Goal
 
-- Reshape the site into a bilingual editorial home and writings archive with Korean as the default entry point and English as a first-class alternate route.
+- Reshape the site into a single-language editorial home and writings archive.
 - Add a branch-level umbrella spec workflow so future branch work can be explained and checked from repository state alone.
 
 ## Non-goals
@@ -57,15 +57,15 @@ updated_at: 2026-04-12T00:00:00.000Z
 
 ## Current Branch Delta
 
-- The site shifts from a generic archive toward a Korean-first editorial home and writings flow, while keeping English routes and legacy blog redirects working.
-- Content parsing, sitemap or metadata plumbing, and blog UI are aligned around that bilingual editorial information architecture.
+- The site shifts from a generic archive toward an editorial home and writings flow.
+- Content parsing, sitemap or metadata plumbing, and blog UI are aligned around that editorial information architecture.
 - The repo gains a branch umbrella-spec convention, deterministic spec generation, and spec coverage checks wired into local and CI verification.
 
 ## Constraints
 
 - The branch must remain understandable from this document plus checked-in files alone, without PR discussion or chat context.
 - Coverage enforcement must come from `spec.md`, this spec's `scope_paths`, and the git diff only.
-- Editorial routing must keep Korean as the default archive entry while preserving localized English routes and legacy `/blog/[slug]` redirects.
+- Editorial routing must keep `/blog` as the archive entry while preserving legacy `/blog/[slug]` redirects.
 - Evergreen repository rules stay in `AGENTS.md` and `docs/agent-rules/`; this document should only describe branch-specific intent and constraints.
 
 ## Test Audit
@@ -81,12 +81,11 @@ updated_at: 2026-04-12T00:00:00.000Z
   - `tests/unit/check-content.test.ts`: integration
   - `tests/e2e/smoke.spec.ts`: e2e smoke
 - Prioritized gaps and actions for this branch:
-  - locale/path helpers: new unit tests
   - metadata defaults and overrides: new unit tests
   - route redirects, `notFound`, static params, `robots`, and `sitemap`: new route tests
   - content validation coverage: light refactor in `scripts/check-content.ts` plus new integration tests
   - helper allow/deny matrices in security tests: changed test style to table-driven
-  - critical user flows for locale redirects, preview navigation, translation toggle behavior, and localized 404 paths: expanded smoke coverage
+  - critical user flows for redirects and preview navigation: expanded smoke coverage
 
 ## Linked Detail Specs
 

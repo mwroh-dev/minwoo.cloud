@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { DEFAULT_LOCALE, SITE_COPY } from '@/lib/i18n';
+import { SITE_COPY } from '@/lib/i18n';
 import { buildMetadata } from '@/lib/metadata';
 import { BLOG_URL } from '@/lib/post';
 
@@ -13,7 +13,7 @@ describe('buildMetadata', () => {
 		vi.stubEnv('NODE_ENV', 'development');
 
 		const metadata = buildMetadata();
-		const defaultMetadataCopy = SITE_COPY[DEFAULT_LOCALE].metadata;
+		const defaultMetadataCopy = SITE_COPY.metadata;
 
 		expect(metadata.metadataBase?.toString()).toBe('http://localhost:3000/');
 		expect(metadata.title).toBe(defaultMetadataCopy.baseTitle);
@@ -38,7 +38,7 @@ describe('buildMetadata', () => {
 			description: 'Custom description',
 			thumbnail: '/custom-og.png',
 			title: 'Custom title',
-			url: `${BLOG_URL}/en/blog/custom-note`,
+			url: `${BLOG_URL}/blog/custom-note`,
 		});
 
 		expect(metadata.metadataBase?.toString()).toBe(`${BLOG_URL}/`);
@@ -46,7 +46,7 @@ describe('buildMetadata', () => {
 			description: 'Custom description',
 			title: 'Custom title',
 			type: 'website',
-			url: `${BLOG_URL}/en/blog/custom-note`,
+			url: `${BLOG_URL}/blog/custom-note`,
 		});
 		expect(metadata.openGraph?.images).toEqual([
 			{ alt: 'Custom title', height: 630, url: '/custom-og.png', width: 1200 },

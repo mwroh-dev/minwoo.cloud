@@ -3,11 +3,12 @@ import matter from 'gray-matter';
 import path from 'path';
 import { z } from 'zod';
 
-import { type Locale } from '@/lib/i18n';
 import { IGroupedPosts, IPost } from '@/types/post';
 
 export const CONTENT_PATH = path.join(process.cwd(), 'src', 'content');
 export const BLOG_URL = 'https://minwoo.cloud';
+
+const WORDS_PER_MINUTE = 260;
 
 const PostFrontmatterSchema = z.object({
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -17,42 +18,23 @@ const PostFrontmatterSchema = z.object({
 	tags: z.array(z.string()).optional(),
 	thumbnail: z.string().optional(),
 	title: z.string(),
-	translationKey: z.string().optional(),
 });
 
-function getLocaleDirectory({
-	contentPath = CONTENT_PATH,
-	locale,
-}: {
-	contentPath?: string;
-	locale: Locale;
-}) {
-	return path.join(contentPath, locale);
-}
-
-function getLocalePostPaths({
-	contentPath = CONTENT_PATH,
-	locale,
-}: {
-	contentPath?: string;
-	locale: Locale;
-}) {
-	const directory = getLocaleDirectory({ contentPath, locale });
-	if (!fs.existsSync(directory)) {
+function getPostPaths({ contentPath = CONTENT_PATH }: { contentPath?: string }) {
+	if (!fs.existsSync(contentPath)) {
 		return [];
 	}
 
 	return fs
-		.readdirSync(directory)
-		.filter(file => file.endsWith('.mdx'))
-		.map(file => path.join(directory, file));
+		.readdirSync(contentPath, { withFileTypes: true })
+		.filter(entry => entry.isFile() && entry.name.endsWith('.mdx'))
+		.map(entry => path.join(contentPath, entry.name));
 }
 
-function estimateReadingTime({ content, locale }: { content: string; locale: Locale }) {
+function estimateReadingTime(content: string) {
 	const words = content.trim().split(/\s+/).filter(Boolean).length;
-	const wordsPerMinute = locale === 'ko' ? 260 : 220;
 
-	return Math.max(1, Math.round(words / wordsPerMinute));
+	return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
 }
 
 function sortPosts(posts: IPost[]) {
@@ -75,12 +57,10 @@ function getSeriesLabel({
 
 export function buildPostFromSource({
 	fileContents,
-	locale,
 	slug,
 	sourcePath,
 }: {
 	fileContents: string;
-	locale: Locale;
 	slug: string;
 	sourcePath: string;
 }): IPost | null {
@@ -93,7 +73,6 @@ export function buildPostFromSource({
 		tags: data.tags,
 		thumbnail: data.thumbnail,
 		title: data.title,
-		translationKey: data.translationKey,
 	});
 
 	if (!parsed.success) {
@@ -106,57 +85,33 @@ export function buildPostFromSource({
 		description: parsed.data.description,
 		featured: parsed.data.featured ?? false,
 		href: `/blog/${slug}`,
-		locale,
-		readingTimeMinutes: estimateReadingTime({ content, locale }),
+		readingTimeMinutes: estimateReadingTime(content),
 		series: getSeriesLabel({ series: parsed.data.series, tags: parsed.data.tags }),
 		slug,
 		sourcePath,
 		tags: parsed.data.tags ?? [],
 		thumbnail: parsed.data.thumbnail,
 		title: parsed.data.title,
-		translationKey: parsed.data.translationKey ?? slug,
 	};
 }
 
-function parsePostFile({ filePath, locale }: { filePath: string; locale: Locale }): IPost | null {
+function parsePostFile(filePath: string): IPost | null {
 	const fileContents = fs.readFileSync(filePath, 'utf8');
 	const slug = path.basename(filePath, '.mdx');
 
-	return buildPostFromSource({ fileContents, locale, slug, sourcePath: filePath });
+	return buildPostFromSource({ fileContents, slug, sourcePath: filePath });
 }
 
-function loadPosts({
-	contentPath = CONTENT_PATH,
-	locale,
-}: {
-	contentPath?: string;
-	locale: Locale;
-}) {
+function loadPosts(contentPath = CONTENT_PATH) {
 	return sortPosts(
-		getLocalePostPaths({ contentPath, locale })
-			.map(filePath => parsePostFile({ filePath, locale }))
+		getPostPaths({ contentPath })
+			.map(filePath => parsePostFile(filePath))
 			.filter((post): post is IPost => post !== null),
 	);
 }
 
 export function getAllPosts(contentPath = CONTENT_PATH) {
-	return loadPosts({ contentPath, locale: 'ko' });
-}
-
-export function getPostsByLocale(locale: Locale, contentPath = CONTENT_PATH) {
-	return loadPosts({ contentPath, locale });
-}
-
-function getPostByLocaleAndSlug({
-	contentPath = CONTENT_PATH,
-	locale,
-	slug,
-}: {
-	contentPath?: string;
-	locale: Locale;
-	slug: string;
-}) {
-	return loadPosts({ contentPath, locale }).find(post => post.slug === slug) ?? null;
+	return loadPosts(contentPath);
 }
 
 export function getPostBySlug({
@@ -171,14 +126,12 @@ export function getPostBySlug({
 
 export function getPostDocument({
 	contentPath = CONTENT_PATH,
-	locale,
 	slug,
 }: {
 	contentPath?: string;
-	locale: Locale;
 	slug: string;
 }) {
-	const post = getPostByLocaleAndSlug({ contentPath, locale, slug });
+	const post = getPostBySlug({ contentPath, slug });
 	if (!post) {
 		return null;
 	}

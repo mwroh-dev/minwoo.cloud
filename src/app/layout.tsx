@@ -5,7 +5,6 @@ import { Geist, Geist_Mono, Newsreader } from 'next/font/google';
 
 import Footer from '@/components/footer';
 import Header from '@/components/header';
-import { DEFAULT_LOCALE } from '@/lib/i18n';
 import { buildMetadata } from '@/lib/metadata';
 import { GoogleAnalytics as NextGA } from '@next/third-parties/google';
 
@@ -30,7 +29,7 @@ function GoogleAnalytics() {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html
-			lang={DEFAULT_LOCALE}
+			lang="ko"
 			className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable}`}
 			suppressHydrationWarning
 		>

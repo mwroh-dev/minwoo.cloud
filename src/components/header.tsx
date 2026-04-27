@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { DEFAULT_LOCALE, SITE_COPY } from '@/lib/i18n';
+import { SITE_COPY } from '@/lib/i18n';
 import { HOME_PATH } from '@/lib/site';
 
 const MenuLink = ({ href, pathname, title }: { href: string; pathname: string; title: string }) => {
@@ -33,7 +33,7 @@ const MenuLink = ({ href, pathname, title }: { href: string; pathname: string; t
 
 function Header() {
 	const pathname = usePathname();
-	const defaultHeaderCopy = SITE_COPY[DEFAULT_LOCALE].header;
+	const defaultHeaderCopy = SITE_COPY.header;
 
 	return (
 		<header

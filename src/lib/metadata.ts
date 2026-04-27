@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 
-import { DEFAULT_LOCALE, SITE_COPY } from '@/lib/i18n';
+import { SITE_COPY } from '@/lib/i18n';
 import { BLOG_URL } from '@/lib/post';
 
-const defaultMetadataCopy = SITE_COPY[DEFAULT_LOCALE].metadata;
+const defaultMetadataCopy = SITE_COPY.metadata;
 const baseThumbnail = '/og.png';
 
 export const buildMetadata = (input?: {

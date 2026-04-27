@@ -7,15 +7,14 @@
 ## Frontmatter Contract
 
 - Required fields: `title`, `date`, `description`
-- Optional fields currently supported: `featured`, `series`, `tags`, `thumbnail`, `translationKey`
+- Optional fields currently supported: `featured`, `series`, `tags`, `thumbnail`
 - `date` must be `YYYY-MM-DD`.
-- `translationKey` must be unique per locale and stable across translations of the same post.
 
 ## Content Rules
 
-- Keep posts under `src/content/<locale>/*.mdx`.
-- Internal links to posts must use either `/blog/<slug>` or `/{locale}/blog/<slug>` paths that actually resolve.
-- When adding or renaming content, re-check alternate links, archive visibility, and localized navigation.
+- Keep posts under `src/content/*.mdx`.
+- Internal links to posts must use `/blog/<slug>` paths that actually resolve.
+- When adding or renaming content, re-check archive visibility and navigation.
 
 ## Verification
 

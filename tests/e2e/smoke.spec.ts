@@ -29,18 +29,6 @@ test('default archive renders the Korean writings view @smoke', async ({ page })
 	await expect(page.getByText('메모와 기록')).toBeVisible();
 });
 
-test('korean locale archive routes are not available @smoke', async ({ page }) => {
-	await page.goto('/ko/blog');
-
-	await expect(page.getByRole('heading', { level: 1 })).toHaveText('404');
-});
-
-test('english archive routes are not available @smoke', async ({ page }) => {
-	await page.goto('/en/blog');
-
-	await expect(page.getByRole('heading', { level: 1 })).toHaveText('404');
-});
-
 test('sample post detail renders on the canonical route @smoke', async ({ page }) => {
 	await page.goto('/blog/growth-team-mindset');
 
@@ -49,21 +37,8 @@ test('sample post detail renders on the canonical route @smoke', async ({ page }
 	);
 });
 
-test('legacy Korean localized detail routes are not available @smoke', async ({ page }) => {
-	await page.goto('/ko/blog/growth-team-mindset');
-
-	await expect(page.getByRole('heading', { level: 1 })).toHaveText('404');
-});
-
-test('invalid localized archive routes render a 404 page @smoke', async ({ page }) => {
-	const response = await page.goto('/jp/blog');
-
-	expect(response?.status()).toBe(404);
-	await expect(page.getByRole('heading', { level: 1 })).toHaveText('404');
-});
-
-test('invalid localized detail routes render a 404 page @smoke', async ({ page }) => {
-	const response = await page.goto('/en/blog/missing-note');
+test('missing blog post renders a 404 page @smoke', async ({ page }) => {
+	const response = await page.goto('/blog/missing-note');
 
 	expect(response?.status()).toBe(404);
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText('404');

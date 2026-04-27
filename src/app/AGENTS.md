@@ -11,15 +11,13 @@
 - `docs/agent-rules/structure.md`
 - `docs/agent-rules/rendering.md`
 - `docs/agent-rules/naming.md`
-- `docs/agent-rules/i18n.md`
+- `docs/agent-rules/copy.md`
 - `docs/agent-rules/validation.md`
 
 ## Route Rules
 
-- Keep `/blog` as the default Korean archive entry point.
-- Keep localized archives under `/{locale}/blog`.
-- Keep legacy `/blog/[slug]` behavior as a redirect layer, not a second rendering implementation.
-- Any locale or route change must update sitemap, metadata, and redirect behavior together.
+- Keep `/blog` as the archive entry point.
+- Any route change must update sitemap, metadata, and redirect behavior together.
 
 ## Composition Rules
 

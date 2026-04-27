@@ -11,7 +11,7 @@
 - `docs/agent-rules/structure.md`
 - `docs/agent-rules/rendering.md`
 - `docs/agent-rules/naming.md`
-- `docs/agent-rules/i18n.md`
+- `docs/agent-rules/copy.md`
 - `docs/agent-rules/validation.md`
 
 ## Component Rules

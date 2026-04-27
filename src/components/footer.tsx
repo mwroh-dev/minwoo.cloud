@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { Github, LinkedinIcon } from 'lucide-react';
 
-import { DEFAULT_LOCALE, SITE_COPY } from '@/lib/i18n';
+import { SITE_COPY } from '@/lib/i18n';
 import { GITHUB_PROFILE_URL, LINKEDIN_PROFILE_URL } from '@/lib/site';
 
 function Footer() {
-	const defaultFooterCopy = SITE_COPY[DEFAULT_LOCALE].footer;
+	const defaultFooterCopy = SITE_COPY.footer;
 	const externalRel = 'noopener noreferrer';
 
 	return (

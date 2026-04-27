@@ -6,7 +6,7 @@ import { BLOG_COPY, getPostDateLabel, getReadingTimeLabel } from '@/lib/i18n';
 import { getGroupedPosts } from '@/lib/post';
 import { IGroupedPosts, IPost } from '@/types/post';
 
-const copy = BLOG_COPY['ko'];
+const copy = BLOG_COPY;
 
 function ArchiveGroupSection({ group }: { group: IGroupedPosts }) {
 	const postItems = group.posts.map(post => (
