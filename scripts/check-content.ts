@@ -2,7 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { LOCALES, LOCALE_VALUES, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+
+const LOCALES: Locale[] = ['ko'];
 import { CONTENT_PATH, buildPostFromSource } from '@/lib/post';
 import { IPost } from '@/types/post';
 
@@ -134,18 +136,14 @@ function validateUniqueness(input: { issues: ContentIssue[]; posts: CollectedPos
 }
 
 function isKnownInternalRoute(linkPath: string) {
-	return (
-		linkPath === '/' ||
-		linkPath === '/blog' ||
-		linkPath === `/${LOCALE_VALUES.ENGLISH}/blog` ||
-		linkPath === `/${LOCALE_VALUES.KOREAN}/blog`
-	);
+	return linkPath === '/' || linkPath === '/blog';
 }
 
 function getLocalizedSlugMatch(linkPath: string) {
-	const localizedRoutePattern = new RegExp(`^\\/(${LOCALES.join('|')})\\/blog\\/([^/?#]+)$`);
+	const localizedRoutePattern = /^\/blog\/([^/?#]+)$/;
+	const match = linkPath.match(localizedRoutePattern);
 
-	return linkPath.match(localizedRoutePattern);
+	return match ? [match[0], 'ko', match[1]] : null;
 }
 
 function validateInternalLinks(input: {
@@ -154,11 +152,8 @@ function validateInternalLinks(input: {
 	posts: CollectedPost[];
 	publicPath: string;
 }) {
-	const legacyRoutePattern = /^\/blog\/([^/?#]+)$/;
+	const blogPostPattern = /^\/blog\/([^/?#]+)$/;
 	const linkPattern = /\[[^\]]+\]\((\/[^)\s?#]+)(?:[?#][^)]+)?\)/g;
-	const localizedPostKeys = new Set(
-		input.posts.map(({ post }) => `${post.locale}:${post.slug}` satisfies `${Locale}:${string}`),
-	);
 	const slugs = input.posts.map(({ post }) => post.slug);
 	const slugSet = new Set(slugs);
 
@@ -170,27 +165,9 @@ function validateInternalLinks(input: {
 				continue;
 			}
 
-			const localizedMatch = getLocalizedSlugMatch(linkPath);
-			if (localizedMatch) {
-				const [, locale, slug] = localizedMatch;
-				const localizedPostKey = `${locale as Locale}:${slug}` satisfies `${Locale}:${string}`;
-				if (!localizedPostKeys.has(localizedPostKey)) {
-					addIssue({
-						issues: input.issues,
-						issue: {
-							category: CONTENT_ISSUE_CATEGORY.LOGICAL_ERROR,
-							code: CONTENT_ISSUE_CODE.BROKEN_LOCALIZED_BLOG_LINK,
-							detail: linkPath,
-							file: post.sourcePath,
-						},
-					});
-				}
-				continue;
-			}
-
-			const legacyMatch = linkPath.match(legacyRoutePattern);
-			if (legacyMatch) {
-				const [, slug] = legacyMatch;
+			const blogPostMatch = getLocalizedSlugMatch(linkPath) ?? linkPath.match(blogPostPattern);
+			if (blogPostMatch) {
+				const slug = blogPostMatch[blogPostMatch.length - 1] as string;
 				if (!slugSet.has(slug)) {
 					addIssue({
 						issues: input.issues,

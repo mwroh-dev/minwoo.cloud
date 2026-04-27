@@ -87,3 +87,20 @@ a {
 .blog-prose hr {
 	border-color: var(--line);
 }
+
+/* Soften bullet marker color to match muted text tone */
+.blog-prose ul > li::marker,
+.blog-prose ol > li::marker {
+	color: var(--muted);
+}
+
+/* Korean typography: keep words together, improve line rhythm */
+:lang(ko) {
+	word-break: keep-all;
+	overflow-wrap: break-word;
+}
+
+.blog-prose :lang(ko) p,
+.blog-prose :lang(ko) li {
+	line-height: 1.9;
+}

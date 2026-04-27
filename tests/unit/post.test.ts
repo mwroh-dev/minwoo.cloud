@@ -4,13 +4,7 @@ import path from 'path';
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import {
-	buildPostFromSource,
-	getAlternatePosts,
-	getGroupedPosts,
-	getPostBySlug,
-	getPostsByLocale,
-} from '@/lib/post';
+import { buildPostFromSource, getGroupedPosts, getPostBySlug, getPostsByLocale } from '@/lib/post';
 
 const tempRoots: string[] = [];
 
@@ -81,7 +75,7 @@ Body copy`,
 		});
 
 		expect(post).not.toBeNull();
-		expect(post?.href).toBe('/ko/blog/valid-post');
+		expect(post?.href).toBe('/blog/valid-post');
 		expect(post?.series).toBe('Notes');
 		expect(post?.translationKey).toBe('valid-post');
 		expect(post?.readingTimeMinutes).toBeGreaterThanOrEqual(1);
@@ -157,54 +151,15 @@ describe('post loaders', () => {
 		expect(groups[1]?.name).toBe('Beta');
 	});
 
-	it('resolves alternate translations by translationKey', () => {
+	it('returns an empty list when the ko directory does not exist', () => {
 		const root = createContentRoot();
-
-		writePost(root, 'ko', 'shared-note-ko', {
-			title: '공유 노트',
-			date: '2026-04-11',
-			description: '한국어 본문',
-			series: 'Notes',
-			translationKey: 'shared-note',
-		});
-		writePost(root, 'en', 'shared-note-en', {
-			title: 'Shared note',
-			date: '2026-04-11',
-			description: 'English body',
-			series: 'Notes',
-			translationKey: 'shared-note',
-		});
-
-		const koreanPost = getPostsByLocale('ko', root)[0];
-		const alternates = getAlternatePosts({ contentPath: root, post: koreanPost });
-
-		expect(alternates).toHaveLength(1);
-		expect(alternates[0]?.locale).toBe('en');
-		expect(alternates[0]?.slug).toBe('shared-note-en');
-	});
-
-	it('returns an empty list for a locale directory that does not exist', () => {
-		const root = createContentRoot();
-
-		writePost(root, 'en', 'english-only', {
-			title: 'English only',
-			date: '2026-04-11',
-			description: 'Only English content exists',
-			series: 'Notes',
-		});
 
 		expect(getPostsByLocale('ko', root)).toEqual([]);
 	});
 
-	it('looks up a post by slug across locales', () => {
+	it('looks up a post by slug', () => {
 		const root = createContentRoot();
 
-		writePost(root, 'en', 'english-only', {
-			title: 'English only',
-			date: '2026-04-11',
-			description: 'Only English content exists',
-			series: 'Notes',
-		});
 		writePost(root, 'ko', 'shared-note', {
 			title: '공유 노트',
 			date: '2026-04-12',

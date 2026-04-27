@@ -8,7 +8,7 @@ export default defineConfig({
 	webServer: {
 		command: 'npx next start -p 3001',
 		url: 'http://127.0.0.1:3001',
-		reuseExistingServer: !process.env.CI,
+		reuseExistingServer: false,
 		timeout: 120000,
 	},
 	projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],

@@ -12,14 +12,14 @@ test('home renders and links to the default writings archive @smoke', async ({ p
 	await expect(page).toHaveURL('/blog');
 });
 
-test('home preview link reaches the localized sample post @smoke', async ({ page }) => {
+test('home preview link reaches the sample post @smoke', async ({ page }) => {
 	await page.goto('/');
 
 	const previewLink = page.getByRole('link', { name: '최신 글 미리 보기' });
-	await expect(previewLink).toHaveAttribute('href', '/blog/survivorship-bias-and-failure-hooks');
+	await expect(previewLink).toHaveAttribute('href', '/blog/growth-team-mindset');
 
 	await previewLink.click();
-	await expect(page).toHaveURL('/ko/blog/survivorship-bias-and-failure-hooks');
+	await expect(page).toHaveURL('/blog/growth-team-mindset');
 });
 
 test('default archive renders the Korean writings view @smoke', async ({ page }) => {
@@ -27,57 +27,32 @@ test('default archive renders the Korean writings view @smoke', async ({ page })
 
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('개발자의 사고력 키우기');
 	await expect(page.getByText('메모와 기록')).toBeVisible();
-	await expect(page.getByRole('link', { name: 'EN' })).toBeVisible();
 });
 
-test('korean locale archive redirects to the default archive route @smoke', async ({ page }) => {
+test('korean locale archive routes are not available @smoke', async ({ page }) => {
 	await page.goto('/ko/blog');
 
-	await expect(page).toHaveURL('/blog');
-	await expect(page.getByRole('heading', { level: 1 })).toContainText('개발자의 사고력 키우기');
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText('404');
 });
 
-test('english archive is reachable from its localized route @smoke', async ({ page }) => {
+test('english archive routes are not available @smoke', async ({ page }) => {
 	await page.goto('/en/blog');
 
-	await expect(page.getByRole('heading', { level: 1 })).toContainText(
-		'Sharpening developer thinking.',
-	);
-	await expect(page.getByRole('link', { name: 'KO' })).toBeVisible();
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText('404');
 });
 
-test('archive locale toggles keep localized routes reachable @smoke', async ({ page }) => {
-	await page.goto('/en/blog');
-
-	await page.getByRole('link', { name: 'KO' }).click();
-	await expect(page).toHaveURL('/blog');
-
-	await page.getByRole('link', { name: 'EN' }).click();
-	await expect(page).toHaveURL('/en/blog');
-});
-
-test('korean sample post detail renders on the localized route @smoke', async ({ page }) => {
-	await page.goto('/ko/blog/survivorship-bias-and-failure-hooks');
+test('sample post detail renders on the canonical route @smoke', async ({ page }) => {
+	await page.goto('/blog/growth-team-mindset');
 
 	await expect(page.getByRole('heading', { level: 1 })).toContainText(
-		'레시피의 시대에 더 자주 떠올리는 것, 생존자 편향',
+		'구현을 위임할수록 앞단은 무거워야한다',
 	);
-	await expect(page.getByText('Translate')).toBeVisible();
 });
 
-test('detail translation toggle disables missing alternates @smoke', async ({ page }) => {
-	await page.goto('/ko/blog/survivorship-bias-and-failure-hooks');
+test('legacy Korean localized detail routes are not available @smoke', async ({ page }) => {
+	await page.goto('/ko/blog/growth-team-mindset');
 
-	await expect(page.getByText('Translate')).toBeVisible();
-	await expect(page.locator('span[aria-disabled="true"]')).toContainText('EN');
-	await expect(page.getByRole('link', { name: 'EN' })).toHaveCount(0);
-});
-
-test('legacy blog slug redirects to the localized detail route @smoke', async ({ page }) => {
-	await page.goto('/blog/survivorship-bias-and-failure-hooks');
-
-	await expect(page).toHaveURL(/\/ko\/blog\/survivorship-bias-and-failure-hooks$/);
-	await expect(page.getByRole('heading', { level: 1 })).toContainText('생존자 편향');
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText('404');
 });
 
 test('invalid localized archive routes render a 404 page @smoke', async ({ page }) => {

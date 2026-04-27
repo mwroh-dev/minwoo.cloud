@@ -3,7 +3,7 @@ import matter from 'gray-matter';
 import path from 'path';
 import { z } from 'zod';
 
-import { LOCALES, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
 import { IGroupedPosts, IPost } from '@/types/post';
 
 export const CONTENT_PATH = path.join(process.cwd(), 'src', 'content');
@@ -105,7 +105,7 @@ export function buildPostFromSource({
 		date: parsed.data.date,
 		description: parsed.data.description,
 		featured: parsed.data.featured ?? false,
-		href: `/${locale}/blog/${slug}`,
+		href: `/blog/${slug}`,
 		locale,
 		readingTimeMinutes: estimateReadingTime({ content, locale }),
 		series: getSeriesLabel({ series: parsed.data.series, tags: parsed.data.tags }),
@@ -140,7 +140,7 @@ function loadPosts({
 }
 
 export function getAllPosts(contentPath = CONTENT_PATH) {
-	return sortPosts(LOCALES.flatMap(locale => loadPosts({ contentPath, locale })));
+	return loadPosts({ contentPath, locale: 'ko' });
 }
 
 export function getPostsByLocale(locale: Locale, contentPath = CONTENT_PATH) {
@@ -187,19 +187,6 @@ export function getPostDocument({
 	const { content } = matter(fileContents);
 
 	return { content, post };
-}
-
-export function getAlternatePosts({
-	contentPath = CONTENT_PATH,
-	post,
-}: {
-	contentPath?: string;
-	post: IPost;
-}) {
-	return getAllPosts(contentPath).filter(
-		candidate =>
-			candidate.translationKey === post.translationKey && candidate.locale !== post.locale,
-	);
 }
 
 export function getGroupedPosts(posts: IPost[]): IGroupedPosts[] {

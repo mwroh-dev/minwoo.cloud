@@ -2,21 +2,13 @@ import Link from 'next/link';
 
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
-import LanguageToggle from '@/components/blog/language-toggle';
-import {
-	BLOG_COPY,
-	ENGLISH_LOCALE,
-	getLocaleBlogPath,
-	getPostDateLabel,
-	getReadingTimeLabel,
-	KOREAN_LOCALE,
-	LOCALE_CODE_LABEL,
-	type Locale,
-} from '@/lib/i18n';
+import { BLOG_COPY, getPostDateLabel, getReadingTimeLabel } from '@/lib/i18n';
 import { getGroupedPosts } from '@/lib/post';
 import { IGroupedPosts, IPost } from '@/types/post';
 
-function ArchiveGroupSection({ group, locale }: { group: IGroupedPosts; locale: Locale }) {
+const copy = BLOG_COPY['ko'];
+
+function ArchiveGroupSection({ group }: { group: IGroupedPosts }) {
 	const postItems = group.posts.map(post => (
 		<li key={post.href}>
 			<Link
@@ -24,13 +16,11 @@ function ArchiveGroupSection({ group, locale }: { group: IGroupedPosts; locale: 
 				className="group grid gap-4 rounded-2xl px-4 py-4 transition-all duration-200 hover:translate-x-1 hover:bg-white/65 sm:grid-cols-[170px_1fr_auto]"
 			>
 				<div className="font-mono text-xs uppercase tracking-[0.22em] text-stone-500">
-					<div>{getPostDateLabel({ date: post.date, locale })}</div>
-					<div className="mt-2">
-						{getReadingTimeLabel({ locale, minutes: post.readingTimeMinutes })}
-					</div>
+					<div>{getPostDateLabel({ date: post.date })}</div>
+					<div className="mt-2">{getReadingTimeLabel({ minutes: post.readingTimeMinutes })}</div>
 				</div>
 				<div className="space-y-2">
-					<p className="font-serif text-2xl leading-tight text-stone-950">{post.title}</p>
+					<p className="font-serif text-2xl leading-snug text-stone-950">{post.title}</p>
 					<p className="max-w-2xl text-sm leading-6 text-stone-600">{post.description}</p>
 				</div>
 				<div className="hidden items-center justify-end text-stone-400 transition-colors duration-200 group-hover:text-orange-700 sm:flex">
@@ -56,15 +46,7 @@ function EmptyArchiveState({ message }: { message: string }) {
 	);
 }
 
-function renderArchiveContent({
-	locale,
-	message,
-	posts,
-}: {
-	locale: Locale;
-	message: string;
-	posts: IPost[];
-}) {
+function renderArchiveContent({ message, posts }: { message: string; posts: IPost[] }) {
 	if (posts.length === 0) {
 		return <EmptyArchiveState message={message} />;
 	}
@@ -74,36 +56,17 @@ function renderArchiveContent({
 		return <EmptyArchiveState message={message} />;
 	}
 
-	const archiveGroupSections = groupedPosts.map(group => (
-		<ArchiveGroupSection key={group.name} group={group} locale={locale} />
-	));
-
-	return archiveGroupSections;
+	return groupedPosts.map(group => <ArchiveGroupSection key={group.name} group={group} />);
 }
 
-export default function BlogIndex({ locale, posts }: { locale: Locale; posts: IPost[] }) {
-	const copy = BLOG_COPY[locale];
+export default function BlogIndex({ posts }: { posts: IPost[] }) {
 	const featuredPost = posts.find(post => post.featured) ?? posts[0];
 	const isSecondaryArchiveAvailable = Boolean(featuredPost) && posts.length > 1;
 	const archivePosts = isSecondaryArchiveAvailable
 		? posts.filter(post => post.slug !== featuredPost.slug)
 		: posts;
 
-	const languageToggleItems = [
-		{
-			href: getLocaleBlogPath(KOREAN_LOCALE),
-			isActive: locale === KOREAN_LOCALE,
-			label: LOCALE_CODE_LABEL[KOREAN_LOCALE],
-		},
-		{
-			href: getLocaleBlogPath(ENGLISH_LOCALE),
-			isActive: locale === ENGLISH_LOCALE,
-			label: LOCALE_CODE_LABEL[ENGLISH_LOCALE],
-		},
-	];
-
 	const archiveContent = renderArchiveContent({
-		locale,
 		message: copy.emptyDescription,
 		posts: archivePosts,
 	});
@@ -113,10 +76,7 @@ export default function BlogIndex({ locale, posts }: { locale: Locale; posts: IP
 		<section className="px-6 pb-20 pt-24 sm:px-8">
 			<div className="mx-auto max-w-6xl">
 				<div className="flex flex-col gap-6 border-t border-stone-300 pt-4">
-					<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-						<p className="text-xs uppercase tracking-[0.28em] text-stone-500">{copy.eyebrow}</p>
-						<LanguageToggle label={copy.switchLabel} items={languageToggleItems} />
-					</div>
+					<p className="text-xs uppercase tracking-[0.28em] text-stone-500">{copy.eyebrow}</p>
 					<div className="grid gap-12 lg:grid-cols-[1.3fr_0.7fr]">
 						<div className="space-y-6">
 							<h1 className="max-w-4xl font-serif text-4xl leading-[0.95] text-stone-950 sm:text-6xl">
@@ -140,10 +100,10 @@ export default function BlogIndex({ locale, posts }: { locale: Locale; posts: IP
 						<div className="mt-6 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
 							<div className="space-y-3">
 								<p className="text-sm text-stone-500">
-									{getPostDateLabel({ date: featuredPost.date, locale })} /{' '}
-									{getReadingTimeLabel({ locale, minutes: featuredPost.readingTimeMinutes })}
+									{getPostDateLabel({ date: featuredPost.date })} /{' '}
+									{getReadingTimeLabel({ minutes: featuredPost.readingTimeMinutes })}
 								</p>
-								<h2 className="max-w-2xl font-serif text-3xl leading-tight text-stone-950 sm:text-5xl">
+								<h2 className="max-w-2xl font-serif text-3xl leading-snug text-stone-950 sm:text-5xl sm:leading-snug">
 									{featuredPost.title}
 								</h2>
 							</div>

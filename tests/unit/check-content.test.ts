@@ -113,7 +113,7 @@ describe('runContentCheck', () => {
 
 		expect(runContentCheck({ contentPath: contentRoot, publicPath: publicRoot })).toEqual({
 			issues: [],
-			postsChecked: 2,
+			postsChecked: 1,
 		});
 	});
 
@@ -157,15 +157,15 @@ describe('runContentCheck', () => {
 		consoleError.mockRestore();
 	});
 
-	it('reports duplicate slugs across locales', () => {
+	it('does not flag en posts since only ko is scanned', () => {
 		const { contentRoot, publicRoot } = createValidationRoot();
 		ensureLocaleDirectories(contentRoot);
 		writePost({
 			contentRoot,
 			locale: 'ko',
-			filename: 'shared-slug',
+			filename: 'ko-post',
 			frontmatter: {
-				title: '공유 슬러그',
+				title: '한국어 글',
 				date: '2026-04-11',
 				description: 'Korean entry',
 				series: 'Notes',
@@ -174,22 +174,19 @@ describe('runContentCheck', () => {
 		writePost({
 			contentRoot,
 			locale: 'en',
-			filename: 'shared-slug',
+			filename: 'en-post',
 			frontmatter: {
-				title: 'Shared slug',
+				title: 'English post',
 				date: '2026-04-11',
 				description: 'English entry',
 				series: 'Notes',
 			},
 		});
 
-		const issueCodes = runContentCheck({
-			contentPath: contentRoot,
-			publicPath: publicRoot,
-		}).issues.map(issue => issue.code);
+		const result = runContentCheck({ contentPath: contentRoot, publicPath: publicRoot });
 
-		expect(issueCodes).toContain(CONTENT_ISSUE_CODE.DUPLICATE_SLUG);
-		expect(issueCodes).toContain(CONTENT_ISSUE_CODE.GLOBAL_SLUG_UNIQUENESS_CHECK_FAILED);
+		expect(result.postsChecked).toBe(1);
+		expect(result.issues).toHaveLength(0);
 	});
 
 	it('reports duplicate translation keys within the same locale', () => {
@@ -227,7 +224,7 @@ describe('runContentCheck', () => {
 		).toContain(CONTENT_ISSUE_CODE.DUPLICATE_TRANSLATION_KEY);
 	});
 
-	it('reports broken localized and legacy blog links', () => {
+	it('reports broken blog post links', () => {
 		const { contentRoot, publicRoot } = createValidationRoot();
 		ensureLocaleDirectories(contentRoot);
 		writePost({
@@ -240,7 +237,7 @@ describe('runContentCheck', () => {
 				description: 'Broken links',
 				series: 'Notes',
 			},
-			body: '본문 [Localized](/en/blog/missing-note) [Legacy](/blog/missing-note)',
+			body: '본문 [존재하지 않는 글](/blog/missing-note)',
 		});
 
 		const issueCodes = runContentCheck({
@@ -248,7 +245,6 @@ describe('runContentCheck', () => {
 			publicPath: publicRoot,
 		}).issues.map(issue => issue.code);
 
-		expect(issueCodes).toContain(CONTENT_ISSUE_CODE.BROKEN_LOCALIZED_BLOG_LINK);
 		expect(issueCodes).toContain(CONTENT_ISSUE_CODE.BROKEN_LEGACY_BLOG_LINK);
 	});
 

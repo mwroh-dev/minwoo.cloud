@@ -3,15 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { DEFAULT_LOCALE, getLocaleBlogPath, SITE_COPY } from '@/lib/i18n';
+import { DEFAULT_LOCALE, SITE_COPY } from '@/lib/i18n';
 import { HOME_PATH } from '@/lib/site';
 
 const MenuLink = ({ href, pathname, title }: { href: string; pathname: string; title: string }) => {
 	const isFocus = (href: string) => {
-		const defaultBlogPath = getLocaleBlogPath(DEFAULT_LOCALE);
-
-		if (href === defaultBlogPath) {
-			return pathname.includes(defaultBlogPath);
+		if (href === '/blog') {
+			return pathname.includes('/blog');
 		}
 
 		return href === pathname || (href !== HOME_PATH && pathname.startsWith(href));
@@ -49,11 +47,7 @@ function Header() {
 				</Link>
 				<ul className="flex justify-start space-x-6">
 					<MenuLink title={defaultHeaderCopy.homeLabel} href={HOME_PATH} pathname={pathname} />
-					<MenuLink
-						title={defaultHeaderCopy.writingsLabel}
-						href={getLocaleBlogPath(DEFAULT_LOCALE)}
-						pathname={pathname}
-					/>
+					<MenuLink title={defaultHeaderCopy.writingsLabel} href="/blog" pathname={pathname} />
 				</ul>
 			</nav>
 		</header>

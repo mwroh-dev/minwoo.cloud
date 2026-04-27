@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
-import { DEFAULT_LOCALE, getLocaleBlogPath, getLocalizedBlogPostPath, SITE_COPY } from '@/lib/i18n';
+import { DEFAULT_LOCALE, getLocalizedBlogPostPath, SITE_COPY } from '@/lib/i18n';
 
 export default function Home() {
 	const defaultHomeCopy = SITE_COPY[DEFAULT_LOCALE].home;
@@ -38,7 +38,7 @@ export default function Home() {
 						</p>
 						<div className="flex flex-wrap items-center gap-4 pt-2">
 							<Link
-								href={getLocaleBlogPath(DEFAULT_LOCALE)}
+								href="/blog"
 								className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-5 py-3 text-sm uppercase tracking-[0.22em] text-stone-50 transition-all duration-200 hover:-translate-y-0.5 hover:bg-orange-700"
 							>
 								{defaultHomeCopy.ctaLabel}
@@ -60,7 +60,7 @@ export default function Home() {
 						<Link
 							href={getLocalizedBlogPostPath({
 								locale: DEFAULT_LOCALE,
-								slug: 'survivorship-bias-and-failure-hooks',
+								slug: 'growth-team-mindset',
 							})}
 							className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-sm uppercase tracking-[0.22em] text-stone-950 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-700 hover:text-orange-700"
 						>
