@@ -1,18 +1,13 @@
 import { Metadata } from 'next';
-import { Geist_Mono } from 'next/font/google';
 
-import { generateMetadata } from '@/lib/metadata';
+import { SITE_COPY } from '@/lib/i18n';
+import { buildMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = generateMetadata({
-	title: 'Minwoo.Roh | Blog',
-	description:
-		'Sharing challenges and lessons from web development, along with small insights from solving complex problems.',
+export const metadata: Metadata = buildMetadata({
+	title: SITE_COPY.metadata.blogTitle,
+	description: SITE_COPY.metadata.blogDescription,
 });
 
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
-
 export default function BlogLayout({ children }: { children: React.ReactNode }) {
-	return (
-		<section className={`pt-12 min-h-[calc(100vh-72px)] ${geistMono.variable}`}>{children}</section>
-	);
+	return <section className="min-h-0 flex-1">{children}</section>;
 }

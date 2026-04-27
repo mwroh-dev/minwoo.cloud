@@ -3,21 +3,29 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const MenuLink = ({ href, title, pathname }: { href: string; title: string; pathname: string }) => {
+import { SITE_COPY } from '@/lib/i18n';
+import { HOME_PATH } from '@/lib/site';
+
+const MenuLink = ({ href, pathname, title }: { href: string; pathname: string; title: string }) => {
 	const isFocus = (href: string) => {
-		return href === pathname || (href !== '/' && pathname.startsWith(href));
+		if (href === '/blog') {
+			return pathname.includes('/blog');
+		}
+
+		return href === pathname || (href !== HOME_PATH && pathname.startsWith(href));
 	};
 
 	return (
-		<li>
-			<Link href={href}>
-				<span
-					className={`
-						${isFocus(href) ? 'font-bold underline' : 'text-gray-700 hover:text-blue-500'}
-					`}
-				>
-					{title}
-				</span>
+		<li className="text-xs uppercase tracking-[0.24em]">
+			<Link
+				href={href}
+				className={`inline-flex rounded-full px-3 py-1.5 transition-all duration-200 ${
+					isFocus(href)
+						? 'bg-stone-950 text-stone-50'
+						: 'text-stone-500 hover:bg-white/70 hover:text-stone-950'
+				}`}
+			>
+				{title}
 			</Link>
 		</li>
 	);
@@ -25,17 +33,21 @@ const MenuLink = ({ href, title, pathname }: { href: string; title: string; path
 
 function Header() {
 	const pathname = usePathname();
+	const defaultHeaderCopy = SITE_COPY.header;
 
 	return (
 		<header
 			className="
-				fixed top-0 left-0 z-50
-				w-full backdrop-blur-md"
+				sticky top-0 z-50
+				border-b border-stone-200/80 bg-[rgba(246,242,234,0.84)] backdrop-blur-xl"
 		>
-			<nav className="max-w-screen-md mx-auto pl-4 md:pl-0">
-				<ul className="flex justify-start space-x-6 py-2">
-					<MenuLink title="Home" href="/" pathname={pathname} />
-					<MenuLink title="Blog" href="/blog" pathname={pathname} />
+			<nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 sm:px-8">
+				<Link href={HOME_PATH} className="rounded-full px-2 py-1 font-serif text-xl text-stone-950">
+					Minwoo Roh
+				</Link>
+				<ul className="flex justify-start space-x-6">
+					<MenuLink title={defaultHeaderCopy.homeLabel} href={HOME_PATH} pathname={pathname} />
+					<MenuLink title={defaultHeaderCopy.writingsLabel} href="/blog" pathname={pathname} />
 				</ul>
 			</nav>
 		</header>

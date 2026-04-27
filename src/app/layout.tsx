@@ -1,17 +1,18 @@
 import './globals.css';
 
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Newsreader } from 'next/font/google';
 
 import Footer from '@/components/footer';
 import Header from '@/components/header';
-import { generateMetadata } from '@/lib/metadata';
+import { buildMetadata } from '@/lib/metadata';
 import { GoogleAnalytics as NextGA } from '@next/third-parties/google';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+const newsreader = Newsreader({ variable: '--font-newsreader', subsets: ['latin'] });
 
-export const metadata: Metadata = generateMetadata();
+export const metadata: Metadata = buildMetadata();
 
 function GoogleAnalytics() {
 	const isProd = process.env.NODE_ENV === 'production';
@@ -19,25 +20,21 @@ function GoogleAnalytics() {
 
 	const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS;
 	if (!gaId) {
-		throw new Error('NEXT_PUBLIC_GOOGLE_ANALYTICS is not set');
+		return null;
 	}
 
 	return <NextGA gaId={gaId} />;
 }
 
-export default function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html
-			lang="en"
-			className={`${geistSans.variable} ${geistMono.variable}`}
+			lang="ko"
+			className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable}`}
 			suppressHydrationWarning
 		>
-			<body className="max-w-screen-md mx-auto">
-				<main className="flex flex-col w-full h-full">
+			<body>
+				<main className="flex min-h-screen flex-col">
 					<Header />
 					{children}
 					<Footer />

@@ -1,23 +1,20 @@
 import { Metadata } from 'next';
 
+import { SITE_COPY } from '@/lib/i18n';
 import { BLOG_URL } from '@/lib/post';
 
-const baseTitle = 'Minwoo.Roh | Web Developer';
-const baseDescription =
-	'Seasoned in React.js & Experienced Nest.js | Problem-Solver Exploring Complex Domains';
+const defaultMetadataCopy = SITE_COPY.metadata;
 const baseThumbnail = '/og.png';
 
-type TInput = {
+export const buildMetadata = (input?: {
 	description?: string;
 	thumbnail?: string;
 	title?: string;
 	url?: string;
-};
-
-export const generateMetadata = (input?: TInput): Metadata => {
-	const description = input?.description || baseDescription;
+}): Metadata => {
+	const description = input?.description || defaultMetadataCopy.baseDescription;
 	const thumbnail = input?.thumbnail || baseThumbnail;
-	const title = input?.title || baseTitle;
+	const title = input?.title || defaultMetadataCopy.baseTitle;
 	const url = input?.url || BLOG_URL;
 
 	const isProd = process.env.NODE_ENV === 'production';
@@ -32,19 +29,8 @@ export const generateMetadata = (input?: TInput): Metadata => {
 			description,
 			url,
 			type: 'website',
-			images: [
-				{
-					url: thumbnail,
-					width: 1200,
-					height: 630,
-					alt: title,
-				},
-			],
+			images: [{ url: thumbnail, width: 1200, height: 630, alt: title }],
 		},
-		twitter: {
-			card: 'summary_large_image',
-			title,
-			description,
-		},
+		twitter: { card: 'summary_large_image', title, description },
 	};
 };
