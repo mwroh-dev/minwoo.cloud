@@ -8,8 +8,8 @@ export default function Home() {
 	const questionItems = defaultHomeCopy.questionItems.map(item => <li key={item}>{item}</li>);
 
 	return (
-		<section className="px-6 pb-16 pt-10 sm:px-8 sm:pt-12">
-			<div className="mx-auto flex min-h-[calc(100svh-128px)] max-w-6xl flex-col">
+		<section className="flex flex-1 px-6 pb-16 pt-10 sm:px-8 sm:pt-12">
+			<div className="mx-auto flex w-full max-w-6xl flex-1 min-h-0 flex-col">
 				<div className="flex flex-1 items-center justify-center">
 					<div className="relative mx-auto w-full max-w-4xl overflow-hidden rounded-[2.2rem] border border-stone-200/80 bg-stone-100/60 shadow-[0_24px_60px_rgba(28,25,23,0.08)]">
 						<video

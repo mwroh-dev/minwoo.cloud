@@ -9,5 +9,5 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default function BlogLayout({ children }: { children: React.ReactNode }) {
-	return <section className="min-h-[calc(100vh-73px)]">{children}</section>;
+	return <section className="min-h-0 flex-1">{children}</section>;
 }
