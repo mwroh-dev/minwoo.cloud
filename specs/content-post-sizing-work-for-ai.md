@@ -6,6 +6,7 @@ created_at: 2026-05-07T00:00:00.000Z
 context_mode: standalone
 scope_paths:
   - .gitignore
+  - .prettierignore
   - spec.md
   - specs/
   - src/components/blog/blog-index.tsx
