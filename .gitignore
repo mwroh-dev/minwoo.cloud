@@ -28,7 +28,9 @@
 .husky/_
 .claude/
 .omx/
+.omc/
 .superpowers/
+tasks/
 
 # debug
 npm-debug.log*

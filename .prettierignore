@@ -5,7 +5,9 @@ dist
 public
 .claude
 .omx
+.omc
 .superpowers
+docs/superpowers
 coverage
 playwright-report
 test-results
