@@ -61,15 +61,7 @@ function renderArchiveContent({ message, posts }: { message: string; posts: IPos
 
 export default function BlogIndex({ posts }: { posts: IPost[] }) {
 	const featuredPost = posts.find(post => post.featured) ?? posts[0];
-	const isSecondaryArchiveAvailable = Boolean(featuredPost) && posts.length > 1;
-	const archivePosts = isSecondaryArchiveAvailable
-		? posts.filter(post => post.slug !== featuredPost.slug)
-		: posts;
-
-	const archiveContent = renderArchiveContent({
-		message: copy.emptyDescription,
-		posts: archivePosts,
-	});
+	const archiveContent = renderArchiveContent({ message: copy.emptyDescription, posts });
 	const focusItems = copy.focus.map(item => <li key={item}>{item}</li>);
 
 	return (

@@ -1,12 +1,12 @@
 ---
-current_spec: specs/feat-blog-text-list-fd.md
+current_spec: specs/content-post-sizing-work-for-ai.md
 ---
 
 # Current Branch Spec
 
 ## Current spec
 
-- `specs/feat-blog-text-list-fd.md`
+- `specs/content-post-sizing-work-for-ai.md`
 
 ## Status
 
