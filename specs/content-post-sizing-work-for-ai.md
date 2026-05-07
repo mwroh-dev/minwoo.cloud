@@ -5,8 +5,10 @@ branch: content/post-sizing-work-for-ai
 created_at: 2026-05-07T00:00:00.000Z
 context_mode: standalone
 scope_paths:
+  - .gitignore
   - spec.md
   - specs/
+  - src/components/blog/blog-index.tsx
   - src/content/
 updated_at: 2026-05-07T00:00:00.000Z
 ---
@@ -29,7 +31,9 @@ updated_at: 2026-05-07T00:00:00.000Z
 
 ## Current Branch Delta
 
-- 아티클 한 편 추가. 코드·라우팅·컴포넌트 변경 없음.
+- 아티클 한 편(`sizing-work-for-ai.mdx`) 추가.
+- `blog-index.tsx`: featured post를 아카이브 그룹에서 제외하던 필터 제거 — 모든 시리즈가 아카이브에 표시되도록 수정.
+- `.gitignore`: `.omc/`, `tasks/` 추가.
 
 ## Constraints
 
