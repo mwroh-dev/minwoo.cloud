@@ -25,7 +25,9 @@ test('home preview link reaches the sample post @smoke', async ({ page }) => {
 test('default archive renders the Korean writings view @smoke', async ({ page }) => {
 	await page.goto('/blog');
 
-	await expect(page.getByRole('heading', { level: 1 })).toContainText('개발자의 사고력 키우기');
+	await expect(page.getByRole('heading', { level: 1 })).toContainText(
+		'에이전트 시대의 판단력 키우기',
+	);
 	await expect(page.getByText('메모와 기록')).toBeVisible();
 });
 
