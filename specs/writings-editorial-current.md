@@ -1,6 +1,7 @@
 ---
 spec_version: 1
 status: implemented
+created_at: 2026-04-26T00:00:00.000Z
 context_mode: standalone
 scope_paths:
   - .agents/skills/
@@ -16,6 +17,8 @@ scope_paths:
   - package-lock.json
   - playwright.config.ts
   - postcss.config.mjs
+  - spec.md
+  - specs/
   - specs/writings-editorial-current.md
   - src/app/
   - src/components/
@@ -28,6 +31,7 @@ scope_paths:
   - tsconfig.json
   - vitest.config.ts
   - yarn.lock
+updated_at: 2026-06-08T00:00:00.000Z
 ---
 
 # Writings Editorial Current State

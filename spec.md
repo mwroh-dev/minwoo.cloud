@@ -1,12 +1,12 @@
 ---
-current_spec: specs/reframe-ai-judgment-copy.md
+current_spec: specs/writings-editorial-current.md
 ---
 
 # Current Branch Spec
 
 ## Current spec
 
-- `specs/reframe-ai-judgment-copy.md`
+- `specs/writings-editorial-current.md`
 
 ## Status
 
