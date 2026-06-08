@@ -1,12 +1,12 @@
 ---
-current_spec: specs/content-post-sizing-work-for-ai.md
+current_spec: specs/writings-editorial-current.md
 ---
 
 # Current Branch Spec
 
 ## Current spec
 
-- `specs/content-post-sizing-work-for-ai.md`
+- `specs/writings-editorial-current.md`
 
 ## Status
 
